@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, LoginCredentials } from '../types';
 import { getCurrentUser, login as apiLogin, logout as apiLogout } from '../api/auth.api';
+import Loader from "../components/loader"
 
 interface AuthContextType {
   user: User | null;
@@ -58,6 +59,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
     }
   };
+
+  if(isLoading) return <Loader />
 
   return (
     <AuthContext.Provider
