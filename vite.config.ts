@@ -21,19 +21,5 @@ export default defineConfig({
     },
     dedupe: ["react", "react-dom"],
   },
-  root: path.resolve(import.meta.dirname),
-  server: {
-    port,
-    strictPort: true,
-    host: "0.0.0.0",
-    allowedHosts: true,
-    fs: {
-      strict: true,
-    },
-  },
-  preview: {
-    port,
-    host: "0.0.0.0",
-    allowedHosts: true,
-  },
+  root: path.resolve(import.meta.dirname)
 });
