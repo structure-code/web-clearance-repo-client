@@ -19,19 +19,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Create an AbortController instance to track component mounting state
-    const controller = new AbortController();
-    const { signal } = controller;
-
     const fetchUser = async () => {
       try {
-        // Pass the signal to your API client so it can abort the HTTP request if needed
         const data = await getCurrentUser({ signal });
         setUser(data);
       } catch (error: any) {
-        // Only log errors that weren't caused by an intentional cancellation
-        if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
-          console.error("Auth initialization failed:", error);
+          setUser(null)
         }
       } finally {
         // Only turn off loading if the component is still actively mounted
