@@ -1,3 +1,5 @@
+import type { Department } from "./department";
+
 export type UserRole = 'STUDENT' | 'DEPARTMENT_OFFICER' | 'ADMIN';
 
 export interface User {
@@ -8,14 +10,6 @@ export interface User {
   departmentId?: string;
   isActive: boolean;
   createdAt: string;
-}
-
-export interface Department {
-  id: string;
-  name: string;
-  code: string;
-  isActive: boolean;
-  officers?: User[];
 }
 
 export interface Document {

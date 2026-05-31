@@ -1,8 +1,10 @@
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL
+
 // 1. Base Axios Instance Configuration
 export const apiClient = axios.create({
-  baseURL: 'https://api.web-clearance.workfromanywhere.name.ng/api/v1',
+  baseURL: BASE_URL + '/api/v1',
   withCredentials: true,
   timeout: 10000, // 10-second timeout to prevent requests from hanging indefinitely
   headers: {
@@ -70,13 +72,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Use a clean, standard axios instance to call the refresh token endpoint.
-        // This isolates the request so it cannot re-trigger its own interceptor loop.
-        await axios.post(
-          'https://api.web-clearance.workfromanywhere.name.ng/api/v1/auth/refresh',
-          {},
-          { withCredentials: true, timeout: 10000 }
-        );
+        await apiClient.post("/auth/refresh");
         
         processQueue(null);
         return apiClient(originalRequest);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import { AppLayout } from '../components/layouts/AppLayout';
 import { AuthLayout } from '../components/layouts/AuthLayout';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -7,6 +7,7 @@ import { GuestRoute } from './GuestRoute';
 import { AdminRoute } from './AdminRoute';
 
 // Auth
+import RegisterPage from '@/pages/auth/RegisterPage';
 import LoginPage from '../pages/auth/LoginPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
@@ -39,6 +40,7 @@ export default function AppRouter() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       
       <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -73,8 +75,3 @@ export default function AppRouter() {
     </Routes>
   );
 }
-
-const Outlet = () => {
-  const { Outlet: RouterOutlet } = require('react-router-dom');
-  return <RouterOutlet />;
-};

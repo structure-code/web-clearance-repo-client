@@ -17,13 +17,14 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { getDepartments, createDepartment, deleteDepartment } from '../../api/departments.api';
 import { createDepartmentSchema } from '../../validations/schemas';
+import type { Department  } from "@/types/department";
 
 export default function DepartmentsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: deptsRes, isLoading } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
+  const { data: departments = [], isLoading } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
 
   const createMut = useMutation({
     mutationFn: createDepartment,
@@ -59,8 +60,6 @@ export default function DepartmentsPage() {
     createMut.mutate(values);
   };
 
-  const departments = deptsRes?.data || [];
-
   return (
     <div className="space-y-6">
       <PageHeader title="Departments" description="Manage academic and administrative departments requiring clearance.">
@@ -68,7 +67,7 @@ export default function DepartmentsPage() {
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" /> Add Department</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-106.25">
             <DialogHeader>
               <DialogTitle>Create New Department</DialogTitle>
             </DialogHeader>
@@ -100,16 +99,16 @@ export default function DepartmentsPage() {
                 <TableHead>Name</TableHead>
                 <TableHead>Officers</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-[80px]"></TableHead>
+                <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
-              ) : departments.length === 0 ? (
+              ) : departments?.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-8">No departments found.</TableCell></TableRow>
               ) : (
-                departments.map(d => (
+                Array.isArray(departments) && departments.map((d: Department) => (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.code}</TableCell>
                     <TableCell>{d.name}</TableCell>

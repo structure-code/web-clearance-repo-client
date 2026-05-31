@@ -18,17 +18,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Checkbox } from '../../components/ui/checkbox';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 
-import { getUsers, createUser, deleteUser } from '../../api/users.api';
-import { getDepartments } from '../../api/departments.api';
+import { createUser, deleteUser } from '../../api/users.api';
 import { createUserSchema } from '../../validations/schemas';
+
+import { useUsers } from "@/hooks/useUsers";
+import { useDepartments } from "@/hooks/useDepartments";
+
+import type { Department } from "@/types/department";
+import type { User } from "@/types";
 
 export default function UsersPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: usersRes, isLoading } = useQuery({ queryKey: ['users'], queryFn: getUsers });
-  const { data: deptsRes } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
+  const { data: users = [], isLoading } = useUsers()
+  const { data: departments = [] } = useDepartments() 
 
   const createMut = useMutation({
     mutationFn: createUser,
@@ -69,12 +74,9 @@ export default function UsersPage() {
 
   const onSubmit = (values: any) => {
     const payload = { ...values };
-    if (!payload.departmentId) delete payload.departmentId;
+    if (!payload.departmentId || payload.departmentId == "none") delete payload.departmentId;
     createMut.mutate(payload);
   };
-
-  const users = usersRes?.data || [];
-  const departments = deptsRes?.data || [];
 
   return (
     <div className="space-y-6">
@@ -83,7 +85,7 @@ export default function UsersPage() {
           <DialogTrigger asChild>
             <Button><Plus className="mr-2 h-4 w-4" /> Add User</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-106.25">
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
             </DialogHeader>
@@ -118,8 +120,8 @@ export default function UsersPage() {
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="None" /></SelectTrigger></FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
-                        {departments.map(d => (
+                        <SelectItem value="none">None</SelectItem>
+                        {Array.isArray(departments) && departments.map((d: Department) => (
                           <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -155,7 +157,7 @@ export default function UsersPage() {
                 <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-[80px]"></TableHead>
+                <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -164,7 +166,7 @@ export default function UsersPage() {
               ) : users.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="text-center py-8">No users found.</TableCell></TableRow>
               ) : (
-                users.map(u => (
+                users.map((u: User) => (
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">

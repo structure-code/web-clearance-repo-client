@@ -3,21 +3,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
 
 import { createClearanceRequestSchema } from '../../validations/schemas';
 import { useCreateClearanceRequest } from '../../hooks/useClearanceRequests';
 import { useUploadFile } from '../../hooks/useUploadFile';
-import { getDepartments } from '../../api/departments.api';
 
 import { PageHeader } from '../../components/common/PageHeader';
 import { Button } from '../../components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Upload, X, File as FileIcon } from 'lucide-react';
 import { formatFileSize } from '../../utils/helpers';
+import { useDepartments } from '@/hooks/useDepartments';
 
 export default function NewClearanceRequestPage() {
   const navigate = useNavigate();
@@ -25,10 +25,7 @@ export default function NewClearanceRequestPage() {
   const uploadFile = useUploadFile();
   const [documents, setDocuments] = useState<any[]>([]);
 
-  const { data: deptRes, isLoading: deptLoading } = useQuery({
-    queryKey: ['departments'],
-    queryFn: getDepartments,
-  });
+  const { data: departments = [], isLoading: deptLoading } = useDepartments()
 
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
@@ -73,7 +70,7 @@ export default function NewClearanceRequestPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="space-y-6 max-w-2xl">
       <PageHeader title="New Clearance Request" description="Submit required documents to a department for clearance." />
 
       <Card>
@@ -93,7 +90,7 @@ export default function NewClearanceRequestPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {deptRes?.data?.map(dept => (
+                        {Array.isArray(departments) && departments.map(dept => (
                           <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -104,7 +101,7 @@ export default function NewClearanceRequestPage() {
               />
 
               <div className="space-y-4">
-                <FormLabel>Supporting Documents</FormLabel>
+                <Label>Supporting Documents</Label>
                 
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-8 w-8 text-muted-foreground mb-4" />
@@ -127,7 +124,7 @@ export default function NewClearanceRequestPage() {
                     {documents.map((doc, idx) => (
                       <div key={idx} className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
                         <div className="flex items-center space-x-3 overflow-hidden">
-                          <FileIcon className="h-5 w-5 text-primary flex-shrink-0" />
+                          <FileIcon className="h-5 w-5 text-primary shrink-0" />
                           <div className="truncate">
                             <p className="text-sm font-medium truncate">{doc.fileName}</p>
                             <p className="text-xs text-muted-foreground">{formatFileSize(doc.fileSize)}</p>

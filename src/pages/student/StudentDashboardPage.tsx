@@ -21,24 +21,15 @@ export default function StudentDashboardPage() {
     queryFn: getClearanceRequests,
   });
 
-  const { data: deptsRes, isLoading: deptLoading } = useQuery({
-    queryKey: ['departments'],
-    queryFn: getDepartments,
-  });
-
   const requests = requestsRes?.data || [];
-  const departments = deptsRes?.data || [];
 
   const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
   const pendingCount = requests.filter(r => r.status === 'PENDING').length;
   const rejectedCount = requests.filter(r => r.status === 'REJECTED').length;
   const totalCount = requests.length;
 
-  const totalDepts = departments.length;
-  const progressPercent = totalDepts > 0 ? Math.round((approvedCount / totalDepts) * 100) : 0;
-
   useEffect(() => {
-    if (!reqLoading && !deptLoading) {
+    if (!reqLoading) {
       countersRef.current.forEach((el, index) => {
         if (el) {
           const targetValue = parseInt(el.getAttribute('data-value') || '0', 10);
@@ -58,9 +49,9 @@ export default function StudentDashboardPage() {
         }
       });
     }
-  }, [reqLoading, deptLoading, approvedCount, pendingCount, rejectedCount, totalCount]);
+  }, [reqLoading, approvedCount, pendingCount, rejectedCount, totalCount]);
 
-  if (reqLoading || deptLoading) {
+  if (reqLoading) {
     return <div>Loading dashboard...</div>;
   }
 
@@ -83,12 +74,12 @@ export default function StudentDashboardPage() {
             <div>
               <h3 className="text-lg font-semibold">Overall Clearance Progress</h3>
               <p className="text-sm text-muted-foreground">
-                You have cleared {approvedCount} out of {totalDepts} departments
+                {/* You have cleared {approvedCount} out of {totalDepts} departments */}
               </p>
             </div>
-            <div className="text-3xl font-bold text-primary">{progressPercent}%</div>
+            {/* <div className="text-3xl font-bold text-primary">{progressPercent}%</div> */}
           </div>
-          <Progress value={progressPercent} className="h-3 w-full" />
+          {/* <Progress value={progressPercent} className="h-3 w-full" /> */}
         </CardContent>
       </Card>
 
@@ -100,7 +91,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => (countersRef.current[0] = el)} data-value={totalCount}>{totalCount}</span>
+              {/* <span ref={(el) => (countersRef.current[0] = el)} data-value={totalCount}>{totalCount}</span> */}
             </div>
           </CardContent>
         </Card>
@@ -111,7 +102,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => (countersRef.current[1] = el)} data-value={approvedCount}>{approvedCount}</span>
+              {/* <span ref={(el) => (countersRef.current[1] = el)} data-value={approvedCount}>{approvedCount}</span> */}
             </div>
           </CardContent>
         </Card>
@@ -122,7 +113,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => (countersRef.current[2] = el)} data-value={pendingCount}>{pendingCount}</span>
+              {/* <span ref={(el) => (countersRef.current[2] = el)} data-value={pendingCount}>{pendingCount}</span> */}
             </div>
           </CardContent>
         </Card>
@@ -133,7 +124,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => (countersRef.current[3] = el)} data-value={rejectedCount}>{rejectedCount}</span>
+              {/* <span ref={(el) => (countersRef.current[3] = el)} data-value={rejectedCount}>{rejectedCount}</span> */}
             </div>
           </CardContent>
         </Card>

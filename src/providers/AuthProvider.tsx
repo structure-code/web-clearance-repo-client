@@ -1,6 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, LoginCredentials } from '../types';
-import { getCurrentUser, login as apiLogin, logout as apiLogout } from '../api/auth.api';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User, LoginCredentials, ApiResponse } from "../types";
+import {
+  getCurrentUser,
+  login as apiLogin,
+  logout as apiLogout,
+} from "../api/auth.api";
 import Loader from "../components/ui/loader";
 
 interface AuthContextType {
@@ -12,21 +16,25 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await getCurrentUser();
-        setUser(data);
+        const data = await getCurrentUser()
+        setUser(data)
       } catch (error: any) {
-          setUser(null)
-      }finally {
-        setIsLoading(false)
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -36,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginCredentials) => {
     try {
       await apiLogin(credentials);
-      const data = await getCurrentUser();
+      const data = await getCurrentUser()
       setUser(data);
     } catch (error) {
       console.error("Login failed:", error);
@@ -83,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

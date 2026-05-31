@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-// 1. Import useLocation alongside Link and useNavigate
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
-import { loginSchema } from '../../validations/schemas';
+import { loginSchema, type LoginInput } from '../../validations/schemas';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -14,22 +14,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Checkbox } from '../../components/ui/checkbox';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
-  // 2. Initialize useLocation to read the redirect state
   const location = useLocation(); 
   const formRef = useRef<HTMLDivElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // 3. Extract the 'from' pathname if it exists, otherwise default to null
   const from = location.state?.from?.pathname || null;
 
-  const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
+  const form = useForm<LoginInput>({ resolver: zodResolver(loginSchema), mode: "onChange" });
 
   useEffect(() => {
     if (formRef.current) {
@@ -43,21 +36,13 @@ export default function LoginPage() {
 
   const onSubmit = async (values: any) => {
     try {
-      // 4. Await the response from your login function to get the user's role
-      const response = await login(values);
-      toast.success('Login successful');
+      await login(values);
       
-      /* 5. Determine the redirect target:
-         - Priority 1: The 'from' location (if they tried accessing a specific guarded page)
-         - Priority 2: Role-based dashboard (e.g., /admin/dashboard or /user/dashboard)
-         - Fallback: Standard '/dashboard'
-      */
-      const userRole = response?.role || response?.user?.role; // Adjust based on your API response structure
+      const userRole = user?.role;
       const roleDashboard = userRole ? `/${userRole.toLowerCase()}/dashboard` : '/dashboard';
       
       const redirectTo = from || roleDashboard;
 
-      // 6. Programmatically navigate the user, replacing login in history stack
       navigate(redirectTo, { replace: true });
 
     } catch (error: any) {
@@ -95,7 +80,26 @@ export default function LoginPage() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="••••••••" 
+                      className="pr-10" 
+                      {...field} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,6 +124,15 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
+
+          {/* New Section: Register Redirect */}
+          <div className="text-center text-sm text-muted-foreground mt-4">
+            Don&apos;t have an account?{' '}
+            <Link to="/register" className="font-medium text-primary hover:underline">
+              Create an account
+            </Link>
+          </div>
+          
         </form>
       </Form>
     </div>
