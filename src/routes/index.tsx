@@ -1,0 +1,80 @@
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { AppLayout } from '../components/layouts/AppLayout';
+import { AuthLayout } from '../components/layouts/AuthLayout';
+import { ProtectedRoute } from './ProtectedRoute';
+import { GuestRoute } from './GuestRoute';
+import { AdminRoute } from './AdminRoute';
+
+// Auth
+import LoginPage from '../pages/auth/LoginPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+
+// Student
+import StudentDashboardPage from '../pages/student/StudentDashboardPage';
+import ClearanceStatusPage from '../pages/student/ClearanceStatusPage';
+import ClearanceRequestsPage from '../pages/student/ClearanceRequestsPage';
+import NewClearanceRequestPage from '../pages/student/NewClearanceRequestPage';
+import ClearanceHistoryPage from '../pages/student/ClearanceHistoryPage';
+
+// Faculty
+import FacultyDashboardPage from '../pages/faculty/FacultyDashboardPage';
+import ReviewRequestsPage from '../pages/faculty/ReviewRequestsPage';
+import RequestDetailPage from '../pages/faculty/RequestDetailPage';
+
+// Admin
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+import UsersPage from '../pages/admin/UsersPage';
+import DepartmentsPage from '../pages/admin/DepartmentsPage';
+import ReportsPage from '../pages/admin/ReportsPage';
+
+// Shared
+import ProfilePage from '../pages/ProfilePage';
+import NotFound from '../pages/not-found';
+
+export default function AppRouter() {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      
+      <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route path="/profile" element={<ProfilePage />} />
+
+        <Route path="/student">
+          <Route path="dashboard" element={<StudentDashboardPage />} />
+          <Route path="clearance-status" element={<ClearanceStatusPage />} />
+          <Route path="requests" element={<ClearanceRequestsPage />} />
+          <Route path="requests/new" element={<NewClearanceRequestPage />} />
+          <Route path="history" element={<ClearanceHistoryPage />} />
+        </Route>
+
+        <Route path="/faculty">
+          <Route path="dashboard" element={<FacultyDashboardPage />} />
+          <Route path="requests" element={<ReviewRequestsPage />} />
+          <Route path="requests/:id" element={<RequestDetailPage />} />
+        </Route>
+
+        <Route path="/admin" element={<AdminRoute><Outlet /></AdminRoute>}>
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route path="departments" element={<DepartmentsPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+const Outlet = () => {
+  const { Outlet: RouterOutlet } = require('react-router-dom');
+  return <RouterOutlet />;
+};
