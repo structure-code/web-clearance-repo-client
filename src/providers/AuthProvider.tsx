@@ -25,28 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data);
       } catch (error: any) {
           setUser(null)
-        }
-      } finally {
-        // Only turn off loading if the component is still actively mounted
-        if (!signal.aborted) {
-          setIsLoading(false);
-        }
       }
     };
 
     fetchUser();
-
-    const handleUnauthorized = () => {
-      setUser(null);
-    };
-
-    window.addEventListener('auth:unauthorized', handleUnauthorized);
-    
-    return () => {
-      // 2. Trigger cancellation. This stops both the API request and the state updates.
-      controller.abort();
-      window.removeEventListener('auth:unauthorized', handleUnauthorized);
-    };
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
