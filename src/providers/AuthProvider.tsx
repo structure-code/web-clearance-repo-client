@@ -60,7 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  if(isLoading) return <Loader />
+  if(isLoading) return <div className="flex justify-center items-center h-dvh">
+<Loader /> </div>
 
   return (
     <AuthContext.Provider
