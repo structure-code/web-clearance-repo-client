@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await getCurrentUser({ signal });
+        const data = await getCurrentUser();
         setUser(data);
       } catch (error: any) {
           setUser(null)
