@@ -19,25 +19,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
+    // 1. Create an AbortController instance to track component mounting state
+    const controller = new AbortController();
+    const { signal } = controller;
 
     const fetchUser = async () => {
       try {
-        // Safe check to ensure the API function exists before invoking it
-        if (typeof getCurrentUser !== 'function') {
-          throw new Error("getCurrentUser is not a function. Check your API imports.");
+        // Pass the signal to your API client so it can abort the HTTP request if needed
+        const data = await getCurrentUser({ signal });
+        setUser(data);
+      } catch (error: any) {
+        // Only log errors that weren't caused by an intentional cancellation
+        if (error.name !== 'CanceledError' && error.name !== 'AbortError') {
+          console.error("Auth initialization failed:", error);
         }
-
-        const response = await getCurrentUser();
-        
-        if (isMounted && response?.success && response?.data) {
-          setUser(response.data);
-        }
-      } catch (error) {
-        console.error("Auth initialization failed:", error);
-        if (isMounted) setUser(null);
       } finally {
-        if (isMounted) {
+        // Only turn off loading if the component is still actively mounted
+        if (!signal.aborted) {
           setIsLoading(false);
         }
       }
@@ -52,17 +50,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.addEventListener('auth:unauthorized', handleUnauthorized);
     
     return () => {
-      isMounted = false;
+      // 2. Trigger cancellation. This stops both the API request and the state updates.
+      controller.abort();
       window.removeEventListener('auth:unauthorized', handleUnauthorized);
     };
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      const response = await apiLogin(credentials);
-      if (response.success && response.data) {
-        setUser(response.data);
-      }
+      await apiLogin(credentials);
+      const data = await getCurrentUser();
+      setUser(data);
     } catch (error) {
       console.error("Login failed:", error);
       throw error; // Re-throw so the calling component can handle UI errors
@@ -74,7 +72,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await apiLogout();
     } catch (error) {
       console.error("Logout API failed:", error);
-    } {
+    } finally {
+      // Always clear local session even if the backend call hits an error
       setUser(null);
     }
   };
@@ -101,4 +100,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
+};
+
+// Custom hook for easier context consumption across components
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
