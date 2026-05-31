@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from 'react-router-dom';
+// 1. Import useLocation alongside Link and useNavigate
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import { toast } from 'sonner';
 
@@ -15,7 +16,12 @@ import { Checkbox } from '../../components/ui/checkbox';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  // 2. Initialize useLocation to read the redirect state
+  const location = useLocation(); 
   const formRef = useRef<HTMLDivElement>(null);
+
+  // 3. Extract the 'from' pathname if it exists, otherwise default to null
+  const from = location.state?.from?.pathname || null;
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -37,9 +43,23 @@ export default function LoginPage() {
 
   const onSubmit = async (values: any) => {
     try {
-      await login(values);
+      // 4. Await the response from your login function to get the user's role
+      const response = await login(values);
       toast.success('Login successful');
-      // Navigation is handled by AuthProvider/GuestRoute combination (redirects when authenticated)
+      
+      /* 5. Determine the redirect target:
+         - Priority 1: The 'from' location (if they tried accessing a specific guarded page)
+         - Priority 2: Role-based dashboard (e.g., /admin/dashboard or /user/dashboard)
+         - Fallback: Standard '/dashboard'
+      */
+      const userRole = response?.role || response?.user?.role; // Adjust based on your API response structure
+      const roleDashboard = userRole ? `/${userRole.toLowerCase()}/dashboard` : '/dashboard';
+      
+      const redirectTo = from || roleDashboard;
+
+      // 6. Programmatically navigate the user, replacing login in history stack
+      navigate(redirectTo, { replace: true });
+
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Invalid credentials');
     }
