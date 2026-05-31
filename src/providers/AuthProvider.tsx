@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, LoginCredentials } from '../types';
 import { getCurrentUser, login as apiLogin, logout as apiLogout } from '../api/auth.api';
-import Loader from "../components/loader"
+import Loader from "../components/loader.tsx"
 
 interface AuthContextType {
   user: User | null;
