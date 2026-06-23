@@ -3,5 +3,5 @@ export interface Department {
   name: string;
   code: string;
   isActive: boolean;
-  officers?: any[];
+  users?: any[];
 }

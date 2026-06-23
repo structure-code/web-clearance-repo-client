@@ -32,6 +32,7 @@ export const resetPasswordSchema = z.object({
 export const createDepartmentSchema = z.object({
   name: z.string().min(2, { message: "Department name is required" }),
   code: z.string().min(2, { message: "Department code is required" }).toUpperCase(),
+  isActive: z.boolean().optional()
 });
 
 export const createUserSchema = z.object({

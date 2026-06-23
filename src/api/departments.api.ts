@@ -25,7 +25,7 @@ export const deleteDepartment = async (id: string): Promise<void> => {
   return await apiClient.delete(`/departments/${id}`);
 };
 
-export const assignOfficer = async (id: string, userId: string): Promise<Department> => {
+export const assignOfficerToDepartment = async (id: string, userId: string): Promise<Department> => {
   const { data } = await apiClient.post(`/departments/${id}/officers`, { userId });
   return data;
 };
