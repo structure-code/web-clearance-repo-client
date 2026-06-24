@@ -11,7 +11,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
 }
@@ -29,8 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const data = await getCurrentUser()
-        setUser(data)
+      const data = await getCurrentUser();
+      setUser(data);
       } catch (error: any) {
         setUser(null);
       } finally {
@@ -44,8 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (credentials: LoginCredentials) => {
     try {
       await apiLogin(credentials);
-      const data = await getCurrentUser()
+      const data = await getCurrentUser();
       setUser(data);
+      return data;
     } catch (error) {
       console.error("Login failed:", error);
       throw error; // Re-throw so the calling component can handle UI errors

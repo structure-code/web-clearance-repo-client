@@ -10,7 +10,6 @@ import { Progress } from '../../components/ui/progress';
 import { Button } from '../../components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { getClearanceRequests } from '../../api/clearance.api';
-import { getDepartments } from '../../api/departments.api';
 import { formatDate } from '../../utils/helpers';
 
 export default function StudentDashboardPage() {
@@ -21,7 +20,7 @@ export default function StudentDashboardPage() {
     queryFn: getClearanceRequests,
   });
 
-  const requests = requestsRes?.data || [];
+  const requests = requestsRes || [];
 
   const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
   const pendingCount = requests.filter(r => r.status === 'PENDING').length;
@@ -73,9 +72,7 @@ export default function StudentDashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
               <h3 className="text-lg font-semibold">Overall Clearance Progress</h3>
-              <p className="text-sm text-muted-foreground">
-                {/* You have cleared {approvedCount} out of {totalDepts} departments */}
-              </p>
+              <p className="text-sm text-muted-foreground">Track submitted requests and recent decisions.</p>
             </div>
             {/* <div className="text-3xl font-bold text-primary">{progressPercent}%</div> */}
           </div>
@@ -91,7 +88,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {/* <span ref={(el) => (countersRef.current[0] = el)} data-value={totalCount}>{totalCount}</span> */}
+              <span ref={(el) => { countersRef.current[0] = el; }} data-value={totalCount}>{totalCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -102,7 +99,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {/* <span ref={(el) => (countersRef.current[1] = el)} data-value={approvedCount}>{approvedCount}</span> */}
+              <span ref={(el) => { countersRef.current[1] = el; }} data-value={approvedCount}>{approvedCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -113,7 +110,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {/* <span ref={(el) => (countersRef.current[2] = el)} data-value={pendingCount}>{pendingCount}</span> */}
+              <span ref={(el) => { countersRef.current[2] = el; }} data-value={pendingCount}>{pendingCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -124,7 +121,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {/* <span ref={(el) => (countersRef.current[3] = el)} data-value={rejectedCount}>{rejectedCount}</span> */}
+              <span ref={(el) => { countersRef.current[3] = el; }} data-value={rejectedCount}>{rejectedCount}</span>
             </div>
           </CardContent>
         </Card>

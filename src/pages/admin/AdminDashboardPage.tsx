@@ -18,9 +18,9 @@ export default function AdminDashboardPage() {
   const { data: deptRes } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
   const { data: usersRes } = useQuery({ queryKey: ['users'], queryFn: getUsers });
 
-  const requests = reqRes?.data || [];
-  const departments = deptRes?.data || [];
-  const users = usersRes?.data || [];
+  const requests = reqRes || [];
+  const departments = deptRes || [];
+  const users = usersRes || [];
 
   const studentsCount = users.filter(u => u.role === 'STUDENT').length;
   const deptsCount = departments.length;
@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[0] = el} data-value={studentsCount}>{studentsCount}</span>
+              <span ref={(el) => { countersRef.current[0] = el; }} data-value={studentsCount}>{studentsCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -88,7 +88,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[1] = el} data-value={deptsCount}>{deptsCount}</span>
+              <span ref={(el) => { countersRef.current[1] = el; }} data-value={deptsCount}>{deptsCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -99,7 +99,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[2] = el} data-value={reqsCount}>{reqsCount}</span>
+              <span ref={(el) => { countersRef.current[2] = el; }} data-value={reqsCount}>{reqsCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[3] = el} data-value={approvalRate}>{approvalRate}</span>%
+              <span ref={(el) => { countersRef.current[3] = el; }} data-value={approvalRate}>{approvalRate}</span>%
             </div>
           </CardContent>
         </Card>

@@ -1,31 +1,45 @@
 import { apiClient } from './axios';
-import { Department } from "@/types/department";
+import {
+  AssignOfficerDto,
+  CreateDepartmentDto,
+  Department,
+  UpdateDepartmentDto,
+} from "@/types/department";
+import { unwrapData } from './response';
 
 export const getDepartments = async (): Promise<Department[]> => {
   const { data } = await apiClient.get('/departments');
-  return data;
+  return unwrapData<Department[]>(data);
+};
+
+export const getActiveDepartments = async (): Promise<Department[]> => {
+  const { data } = await apiClient.get('/departments/active');
+  return unwrapData<Department[]>(data);
 };
 
 export const getDepartmentById = async (id: string): Promise<Department> => {
   const { data } = await apiClient.get(`/departments/${id}`);
-  return data;
+  return unwrapData<Department>(data);
 };
 
-export const createDepartment = async (departmentData: any): Promise<Department> => {
+export const createDepartment = async (departmentData: CreateDepartmentDto): Promise<Department> => {
   const { data } = await apiClient.post('/departments', departmentData);
-  return data;
+  return unwrapData<Department>(data);
 };
 
-export const updateDepartment = async (id: string, departmentData: any): Promise<Department> => {
+export const updateDepartment = async (id: string, departmentData: UpdateDepartmentDto): Promise<Department> => {
   const { data } = await apiClient.patch(`/departments/${id}`, departmentData);
-  return data;
+  return unwrapData<Department>(data);
 };
 
 export const deleteDepartment = async (id: string): Promise<void> => {
-  return await apiClient.delete(`/departments/${id}`);
+  await apiClient.delete(`/departments/${id}`);
 };
 
-export const assignOfficerToDepartment = async (id: string, userId: string): Promise<Department> => {
+export const assignOfficerToDepartment = async (
+  id: string,
+  userId: AssignOfficerDto['userId'],
+): Promise<Department> => {
   const { data } = await apiClient.post(`/departments/${id}/officers`, { userId });
-  return data;
+  return unwrapData<Department>(data);
 };

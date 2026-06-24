@@ -20,7 +20,7 @@ export default function ReviewRequestsPage() {
 
   if (isLoading) return <div>Loading...</div>;
 
-  const requests = res?.data || [];
+  const requests = res || [];
   const filteredRequests = filter === 'ALL' ? requests : requests.filter(r => r.status === filter);
 
   return (

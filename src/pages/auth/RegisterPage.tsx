@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../../components/ui/form";
-import { apiClient } from "@/api/axios";
+import { register } from "../../api/auth.api";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,12 @@ export default function RegisterPage() {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     mode: "onChange",
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   useEffect(() => {
@@ -48,7 +54,8 @@ export default function RegisterPage() {
     setIsLoading(true);
     
     try {
-      await apiClient.post("/auth/register", values);
+      const { confirmPassword, ...payload } = values;
+      await register(payload);
       toast.success("Registration successful! Please sign in.");
       navigate("/login");
     } catch (error: any) {

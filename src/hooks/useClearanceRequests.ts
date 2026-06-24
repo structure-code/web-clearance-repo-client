@@ -4,8 +4,10 @@ import {
   getClearanceRequestById,
   createClearanceRequest,
   approveClearanceRequest,
-  rejectClearanceRequest
+  rejectClearanceRequest,
+  completeClearanceRequest
 } from '../api/clearance.api';
+import type { CreateClearanceRequestDto } from '../types';
 
 export const useClearanceRequests = () => {
   return useQuery({
@@ -25,7 +27,7 @@ export const useClearanceRequest = (id: string) => {
 export const useCreateClearanceRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createClearanceRequest,
+    mutationFn: (data: CreateClearanceRequestDto) => createClearanceRequest(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
     },
@@ -35,7 +37,7 @@ export const useCreateClearanceRequest = () => {
 export const useApproveClearanceRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, comment }: { id: string; comment?: string }) => approveClearanceRequest(id, comment),
+    mutationFn: ({ id, remarks }: { id: string; remarks?: string }) => approveClearanceRequest(id, remarks),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
       queryClient.invalidateQueries({ queryKey: ['clearance-requests', variables.id] });
@@ -46,10 +48,21 @@ export const useApproveClearanceRequest = () => {
 export const useRejectClearanceRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, comment }: { id: string; comment: string }) => rejectClearanceRequest(id, comment),
+    mutationFn: ({ id, remarks }: { id: string; remarks: string }) => rejectClearanceRequest(id, remarks),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
       queryClient.invalidateQueries({ queryKey: ['clearance-requests', variables.id] });
+    },
+  });
+};
+
+export const useCompleteClearanceRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: completeClearanceRequest,
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['clearance-requests', id] });
     },
   });
 };

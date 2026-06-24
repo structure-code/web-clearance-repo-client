@@ -1,27 +1,46 @@
 import { apiClient } from './axios';
-import { ClearanceRequest, ApiResponse } from '../types';
+import {
+  ClearanceRequest,
+  CreateClearanceRequestDto,
+  UpdateClearanceStatusDto,
+} from '../types';
+import { unwrapData } from './response';
 
-export const getClearanceRequests = async (): Promise<ApiResponse<ClearanceRequest[]>> => {
+export const getClearanceRequests = async (): Promise<ClearanceRequest[]> => {
   const { data } = await apiClient.get('/clearance-requests');
-  return data;
+  return unwrapData<ClearanceRequest[]>(data);
 };
 
-export const getClearanceRequestById = async (id: string): Promise<ApiResponse<ClearanceRequest>> => {
+export const getClearanceRequestById = async (id: string): Promise<ClearanceRequest> => {
   const { data } = await apiClient.get(`/clearance-requests/${id}`);
-  return data;
+  return unwrapData<ClearanceRequest>(data);
 };
 
-export const createClearanceRequest = async (requestData: any): Promise<ApiResponse<ClearanceRequest>> => {
+export const createClearanceRequest = async (
+  requestData: CreateClearanceRequestDto,
+): Promise<ClearanceRequest> => {
   const { data } = await apiClient.post('/clearance-requests', requestData);
-  return data;
+  return unwrapData<ClearanceRequest>(data);
 };
 
-export const approveClearanceRequest = async (id: string, comment?: string): Promise<ApiResponse<ClearanceRequest>> => {
-  const { data } = await apiClient.patch(`/clearance-requests/${id}/approve`, { comment });
-  return data;
+export const approveClearanceRequest = async (
+  id: string,
+  remarks?: UpdateClearanceStatusDto['remarks'],
+): Promise<ClearanceRequest> => {
+  const payload: UpdateClearanceStatusDto = remarks ? { remarks } : {};
+  const { data } = await apiClient.patch(`/clearance-requests/${id}/approve`, payload);
+  return unwrapData<ClearanceRequest>(data);
 };
 
-export const rejectClearanceRequest = async (id: string, comment: string): Promise<ApiResponse<ClearanceRequest>> => {
-  const { data } = await apiClient.patch(`/clearance-requests/${id}/reject`, { comment });
-  return data;
+export const rejectClearanceRequest = async (
+  id: string,
+  remarks: string,
+): Promise<ClearanceRequest> => {
+  const { data } = await apiClient.patch(`/clearance-requests/${id}/reject`, { remarks });
+  return unwrapData<ClearanceRequest>(data);
+};
+
+export const completeClearanceRequest = async (id: string): Promise<ClearanceRequest> => {
+  const { data } = await apiClient.patch(`/clearance-requests/${id}/complete`);
+  return unwrapData<ClearanceRequest>(data);
 };

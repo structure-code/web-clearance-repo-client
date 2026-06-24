@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL
+const API_ORIGIN =
+  import.meta.env.VITE_API_URL ?? 'https://api.web-clearance.workfromanywhere.name.ng';
+const BASE_URL = API_ORIGIN.replace(/\/$/, '');
 
 // 1. Base Axios Instance Configuration
 export const apiClient = axios.create({

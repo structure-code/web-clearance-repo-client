@@ -10,29 +10,35 @@ import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Textarea } from '../../components/ui/textarea';
 
-import { useClearanceRequest, useApproveClearanceRequest, useRejectClearanceRequest } from '../../hooks/useClearanceRequests';
+import { useClearanceRequest, useApproveClearanceRequest, useRejectClearanceRequest, useCompleteClearanceRequest } from '../../hooks/useClearanceRequests';
+import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatFileSize } from '../../utils/helpers';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, CheckCircle2 } from 'lucide-react';
 
 export default function RequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [approveOpen, setApproveOpen] = useState(false);
-  const [comment, setComment] = useState('');
+  const [remarks, setRemarks] = useState('');
 
   const { data: res, isLoading } = useClearanceRequest(id || '');
   const approveMut = useApproveClearanceRequest();
   const rejectMut = useRejectClearanceRequest();
+  const completeMut = useCompleteClearanceRequest();
 
   if (isLoading) return <div>Loading...</div>;
-  if (!res?.data) return <div>Request not found</div>;
+  if (!res) return <div>Request not found</div>;
 
-  const request = res.data;
+  const request = res;
+  const canReview = user?.role === 'DEPARTMENT_OFFICER' || user?.role === 'ADMIN';
+  const canComplete = user?.role === 'ADMIN' && request.status !== 'COMPLETED';
+  const reviewerRemarks = request.remarks || request.comment;
 
   const handleApprove = async () => {
     try {
-      await approveMut.mutateAsync({ id: request.id, comment });
+      await approveMut.mutateAsync({ id: request.id, remarks });
       toast.success('Request approved successfully');
       setApproveOpen(false);
     } catch (err: any) {
@@ -41,16 +47,25 @@ export default function RequestDetailPage() {
   };
 
   const handleReject = async () => {
-    if (!comment.trim()) {
-      toast.error('Comment is required for rejection');
+    if (!remarks.trim()) {
+      toast.error('Remarks are required for rejection');
       return;
     }
     try {
-      await rejectMut.mutateAsync({ id: request.id, comment });
+      await rejectMut.mutateAsync({ id: request.id, remarks });
       toast.success('Request rejected successfully');
       setRejectOpen(false);
     } catch (err: any) {
       toast.error('Failed to reject request');
+    }
+  };
+
+  const handleComplete = async () => {
+    try {
+      await completeMut.mutateAsync(request.id);
+      toast.success('Request completed successfully');
+    } catch (err: any) {
+      toast.error('Failed to complete request');
     }
   };
 
@@ -92,13 +107,13 @@ export default function RequestDetailPage() {
             </CardContent>
           </Card>
 
-          {request.comment && (
+          {reviewerRemarks && (
             <Card>
               <CardHeader>
-                <CardTitle>Reviewer Comment</CardTitle>
+                <CardTitle>Reviewer Remarks</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm bg-muted p-4 rounded-md">{request.comment}</p>
+                <p className="text-sm bg-muted p-4 rounded-md">{reviewerRemarks}</p>
               </CardContent>
             </Card>
           )}
@@ -132,7 +147,7 @@ export default function RequestDetailPage() {
             </CardContent>
           </Card>
 
-          {request.status === 'PENDING' && (
+          {canReview && request.status === 'PENDING' && (
             <Card>
               <CardContent className="p-4 space-y-3">
                 <Button className="w-full bg-success hover:bg-success/90 text-success-foreground" onClick={() => setApproveOpen(true)}>
@@ -140,6 +155,17 @@ export default function RequestDetailPage() {
                 </Button>
                 <Button className="w-full" variant="destructive" onClick={() => setRejectOpen(true)}>
                   Reject Request
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {canComplete && request.status === 'APPROVED' && (
+            <Card>
+              <CardContent className="p-4">
+                <Button className="w-full" onClick={handleComplete} disabled={completeMut.isPending}>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  {completeMut.isPending ? 'Completing...' : 'Force Complete'}
                 </Button>
               </CardContent>
             </Card>
@@ -157,7 +183,7 @@ export default function RequestDetailPage() {
             <p className="text-sm text-muted-foreground">Are you sure you want to approve this clearance request? This action cannot be undone easily.</p>
             <div className="space-y-2">
               <label className="text-sm font-medium">Comment (Optional)</label>
-              <Textarea placeholder="Add a comment..." value={comment} onChange={e => setComment(e.target.value)} />
+              <Textarea placeholder="Add remarks..." value={remarks} onChange={e => setRemarks(e.target.value)} />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setApproveOpen(false)}>Cancel</Button>
@@ -179,11 +205,11 @@ export default function RequestDetailPage() {
             <p className="text-sm text-muted-foreground">Please provide a reason for rejecting this clearance request.</p>
             <div className="space-y-2">
               <label className="text-sm font-medium">Reason <span className="text-destructive">*</span></label>
-              <Textarea placeholder="Explain why the request is rejected..." value={comment} onChange={e => setComment(e.target.value)} />
+              <Textarea placeholder="Explain why the request is rejected..." value={remarks} onChange={e => setRemarks(e.target.value)} />
             </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Button>
-              <Button variant="destructive" onClick={handleReject} disabled={rejectMut.isPending || !comment.trim()}>
+              <Button variant="destructive" onClick={handleReject} disabled={rejectMut.isPending || !remarks.trim()}>
                 {rejectMut.isPending ? 'Rejecting...' : 'Confirm Rejection'}
               </Button>
             </div>

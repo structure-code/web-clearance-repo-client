@@ -4,7 +4,7 @@ import { PageHeader } from '../../components/common/PageHeader';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { Card, CardContent } from '../../components/ui/card';
 import { getClearanceRequests } from '../../api/clearance.api';
-import { getDepartments } from '../../api/departments.api';
+import { getActiveDepartments } from '../../api/departments.api';
 import { Progress } from '../../components/ui/progress';
 
 export default function ClearanceStatusPage() {
@@ -14,16 +14,16 @@ export default function ClearanceStatusPage() {
   });
 
   const { data: deptRes, isLoading: deptLoading } = useQuery({
-    queryKey: ['departments'],
-    queryFn: getDepartments,
+    queryKey: ['departments', 'active'],
+    queryFn: getActiveDepartments,
   });
 
   if (reqLoading || deptLoading) {
     return <div>Loading status...</div>;
   }
 
-  const requests = reqRes?.data || [];
-  const departments = deptRes?.data || [];
+  const requests = reqRes || [];
+  const departments = deptRes || [];
 
   const getStatusForDept = (deptId: string) => {
     const req = requests.find(r => r.departmentId === deptId);
@@ -32,7 +32,7 @@ export default function ClearanceStatusPage() {
 
   const getCommentForDept = (deptId: string) => {
     const req = requests.find(r => r.departmentId === deptId);
-    return req?.comment || '';
+    return req?.remarks || req?.comment || '';
   };
 
   const approvedCount = departments.filter(d => getStatusForDept(d.id) === 'APPROVED').length;

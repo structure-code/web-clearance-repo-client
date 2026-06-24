@@ -15,9 +15,12 @@ import {
   Menu,
   Moon,
   Sun,
-  Bell
+  Bell,
+  Activity,
+  Award,
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
+import { useNotifications } from '../../hooks/useNotifications';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -33,8 +36,10 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 export const AppLayout = () => {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { data: notifications = [] } = useNotifications();
   const location = useLocation();
   const mainRef = useRef<HTMLDivElement>(null);
+  const unreadCount = notifications.filter((notification) => !(notification.isRead ?? notification.read ?? false)).length;
 
   useEffect(() => {
     if (mainRef.current) {
@@ -51,6 +56,7 @@ export const AppLayout = () => {
     { to: '/student/clearance-status', icon: CheckSquare, label: 'Clearance Status' },
     { to: '/student/requests', icon: FileText, label: 'My Requests' },
     { to: '/student/history', icon: History, label: 'History' },
+    { to: '/student/certificate', icon: Award, label: 'Certificate' },
   ];
 
   const facultyLinks = [
@@ -63,6 +69,7 @@ export const AppLayout = () => {
     { to: '/admin/users', icon: Users, label: 'Users' },
     { to: '/admin/departments', icon: Building2, label: 'Departments' },
     { to: '/admin/reports', icon: FileText, label: 'Reports' },
+    { to: '/admin/activity-logs', icon: Activity, label: 'Activity Logs' },
   ];
 
   let links: any[] = [];
@@ -140,9 +147,13 @@ export const AppLayout = () => {
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
               {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
             </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell size={18} />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive" />
+            <Button variant="ghost" size="icon" className="relative" asChild>
+              <Link to="/notifications" aria-label="Notifications">
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-destructive" />
+                )}
+              </Link>
             </Button>
 
             <DropdownMenu>

@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Checkbox } from '../../components/ui/checkbox';
 
 export default function LoginPage() {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation(); 
   const formRef = useRef<HTMLDivElement>(null);
@@ -36,10 +36,14 @@ export default function LoginPage() {
 
   const onSubmit = async (values: any) => {
     try {
-      await login(values);
+      const currentUser = await login(values);
       
-      const userRole = user?.role;
-      const roleDashboard = userRole ? `/${userRole.toLowerCase()}/dashboard` : '/dashboard';
+      const roleDashboard =
+        currentUser.role === 'ADMIN'
+          ? '/admin/dashboard'
+          : currentUser.role === 'DEPARTMENT_OFFICER'
+            ? '/faculty/dashboard'
+            : '/student/dashboard';
       
       const redirectTo = from || roleDashboard;
 

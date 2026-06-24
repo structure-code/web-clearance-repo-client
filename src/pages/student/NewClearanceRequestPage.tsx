@@ -17,7 +17,7 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
 import { Upload, X, File as FileIcon } from 'lucide-react';
 import { formatFileSize } from '../../utils/helpers';
-import { useDepartments } from '@/hooks/useDepartments';
+import { useActiveDepartments } from '@/hooks/useDepartments';
 
 export default function NewClearanceRequestPage() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function NewClearanceRequestPage() {
   const uploadFile = useUploadFile();
   const [documents, setDocuments] = useState<any[]>([]);
 
-  const { data: departments = [], isLoading: deptLoading } = useDepartments()
+  const { data: departments = [] } = useActiveDepartments()
 
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
@@ -41,12 +41,10 @@ export default function NewClearanceRequestPage() {
 
     try {
       const res = await uploadFile.mutateAsync(file);
-      if (res.success && res.data) {
-        const newDocs = [...documents, res.data];
-        setDocuments(newDocs);
-        form.setValue('documents', newDocs, { shouldValidate: true });
-        toast.success('File uploaded successfully');
-      }
+      const newDocs = [...documents, res];
+      setDocuments(newDocs);
+      form.setValue('documents', newDocs, { shouldValidate: true });
+      toast.success('File uploaded successfully');
     } catch (err: any) {
       toast.error('Failed to upload file');
     }
@@ -106,7 +104,7 @@ export default function NewClearanceRequestPage() {
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-8 w-8 text-muted-foreground mb-4" />
                   <p className="text-sm font-medium mb-1">Click to upload or drag and drop</p>
-                  <p className="text-xs text-muted-foreground mb-4">PDF, JPG, PNG (max 5MB)</p>
+                  <p className="text-xs text-muted-foreground mb-4">PDF, JPG, PNG (max 10MB)</p>
                   <Input 
                     type="file" 
                     className="hidden" 

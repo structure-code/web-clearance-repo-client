@@ -112,16 +112,19 @@ export default function UsersPage() {
   const onSubmit = (values: any) => {
     const payload = { ...values };
     
-    // Clean up department reference before sending
     if (!payload.departmentId || payload.departmentId === "none") {
-      payload.departmentId = null;
+      delete payload.departmentId;
     }
 
     if (editingUser) {
-      // If password field is empty during edit, omit it from the update payload
       if (!payload.password) delete payload.password;
       updateMut.mutate({ id: editingUser.id, data: payload });
     } else {
+      if (!payload.password) {
+        toast.error('Password is required');
+        return;
+      }
+      delete payload.isActive;
       createMut.mutate(payload);
     }
   };
@@ -195,14 +198,16 @@ export default function UsersPage() {
                     <FormMessage/>
                   </FormItem>
                 )}/>
-                <FormField control={form.control} name="isActive" render={({field}) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Active Account</FormLabel>
-                    </div>
-                  </FormItem>
-                )}/>
+                {editingUser && (
+                  <FormField control={form.control} name="isActive" render={({field}) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Active Account</FormLabel>
+                      </div>
+                    </FormItem>
+                  )}/>
+                )}
                 <div className="flex justify-end pt-4">
                   <Button type="submit" disabled={createMut.isPending || updateMut.isPending}>
                     {createMut.isPending || updateMut.isPending ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}

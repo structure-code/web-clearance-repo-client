@@ -1,32 +1,50 @@
 import { apiClient } from './axios';
-import { LoginCredentials, User, ApiResponse } from '../types';
+import {
+  ForgotPasswordDto,
+  LoginCredentials,
+  RegisterDto,
+  ResetPasswordDto,
+  User,
+  VerifyEmailDto,
+} from '../types';
+import { unwrapData } from './response';
 
-export const login = async (credentials: LoginCredentials): Promise<User> => {
+export const login = async (credentials: LoginCredentials): Promise<unknown> => {
   const { data } = await apiClient.post('/auth/login', credentials);
-  return data;
+  return unwrapData<unknown>(data);
 };
 
-export const register = async (userData: any): Promise<User> => {
+export const register = async (userData: RegisterDto): Promise<User> => {
   const { data } = await apiClient.post('/auth/register', userData);
-  return data;
+  return unwrapData<User>(data);
+};
+
+export const verifyEmail = async (token: VerifyEmailDto['token']): Promise<null> => {
+  const { data } = await apiClient.post('/auth/verify-email', { token });
+  return unwrapData<null>(data);
+};
+
+export const refreshAccessToken = async (): Promise<unknown> => {
+  const { data } = await apiClient.post('/auth/refresh');
+  return unwrapData<unknown>(data);
 };
 
 export const logout = async (): Promise<null> => {
   const { data } = await apiClient.post('/auth/logout');
-  return data;
+  return unwrapData<null>(data);
 };
 
 export const getCurrentUser = async (): Promise<User> => {
   const { data } = await apiClient.get('/auth/me');
-  return data;
+  return unwrapData<User>(data);
 };
 
-export const forgotPassword = async (email: string): Promise<null> => {
+export const forgotPassword = async (email: ForgotPasswordDto['email']): Promise<null> => {
   const { data } = await apiClient.post('/auth/forgot-password', { email });
-  return data;
+  return unwrapData<null>(data);
 };
 
-export const resetPassword = async (payload: any): Promise<null> => {
+export const resetPassword = async (payload: ResetPasswordDto): Promise<null> => {
   const { data } = await apiClient.post('/auth/reset-password', payload);
-  return data;
+  return unwrapData<null>(data);
 };

@@ -20,7 +20,7 @@ export default function FacultyDashboardPage() {
     queryFn: getClearanceRequests,
   });
 
-  const requests = res?.data || [];
+  const requests = res || [];
   const pendingCount = requests.filter(r => r.status === 'PENDING').length;
   // Assume today's approved for simple demo
   const approvedToday = requests.filter(r => r.status === 'APPROVED' && new Date(r.updatedAt).toDateString() === new Date().toDateString()).length;
@@ -59,7 +59,7 @@ export default function FacultyDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[0] = el} data-value={pendingCount}>{pendingCount}</span>
+              <span ref={(el) => { countersRef.current[0] = el; }} data-value={pendingCount}>{pendingCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -70,7 +70,7 @@ export default function FacultyDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[1] = el} data-value={approvedToday}>{approvedToday}</span>
+              <span ref={(el) => { countersRef.current[1] = el; }} data-value={approvedToday}>{approvedToday}</span>
             </div>
           </CardContent>
         </Card>
@@ -81,7 +81,7 @@ export default function FacultyDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={el => countersRef.current[2] = el} data-value={totalProcessed}>{totalProcessed}</span>
+              <span ref={(el) => { countersRef.current[2] = el; }} data-value={totalProcessed}>{totalProcessed}</span>
             </div>
           </CardContent>
         </Card>

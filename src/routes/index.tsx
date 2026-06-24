@@ -11,6 +11,8 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import LoginPage from '../pages/auth/LoginPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
+import VerifyCertificatePage from '../pages/VerifyCertificatePage';
 
 // Student
 import StudentDashboardPage from '../pages/student/StudentDashboardPage';
@@ -18,6 +20,7 @@ import ClearanceStatusPage from '../pages/student/ClearanceStatusPage';
 import ClearanceRequestsPage from '../pages/student/ClearanceRequestsPage';
 import NewClearanceRequestPage from '../pages/student/NewClearanceRequestPage';
 import ClearanceHistoryPage from '../pages/student/ClearanceHistoryPage';
+import MyCertificatePage from '../pages/student/MyCertificatePage';
 
 // Faculty
 import FacultyDashboardPage from '../pages/faculty/FacultyDashboardPage';
@@ -29,32 +32,39 @@ import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import UsersPage from '../pages/admin/UsersPage';
 import DepartmentsPage from '../pages/admin/DepartmentsPage';
 import ReportsPage from '../pages/admin/ReportsPage';
+import ActivityLogsPage from '../pages/admin/ActivityLogsPage';
 
 // Shared
 import ProfilePage from '../pages/ProfilePage';
+import NotificationsPage from '../pages/NotificationsPage';
 import NotFound from '../pages/not-found';
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/verify-certificate" element={<VerifyCertificatePage />} />
       
       <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
       </Route>
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
 
         <Route path="/student">
           <Route path="dashboard" element={<StudentDashboardPage />} />
           <Route path="clearance-status" element={<ClearanceStatusPage />} />
           <Route path="requests" element={<ClearanceRequestsPage />} />
           <Route path="requests/new" element={<NewClearanceRequestPage />} />
+          <Route path="requests/:id" element={<RequestDetailPage />} />
           <Route path="history" element={<ClearanceHistoryPage />} />
+          <Route path="certificate" element={<MyCertificatePage />} />
         </Route>
 
         <Route path="/faculty">
@@ -68,6 +78,7 @@ export default function AppRouter() {
           <Route path="users" element={<UsersPage />} />
           <Route path="departments" element={<DepartmentsPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="activity-logs" element={<ActivityLogsPage />} />
         </Route>
       </Route>
 

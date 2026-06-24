@@ -1,7 +1,8 @@
 import { apiClient } from './axios';
-import { ApiResponse, Document } from '../types';
+import { Document } from '../types';
+import { unwrapData } from './response';
 
-export const uploadFile = async (file: File): Promise<ApiResponse<Document>> => {
+export const uploadFile = async (file: File): Promise<Document> => {
   const formData = new FormData();
   formData.append('file', file);
   
@@ -11,5 +12,5 @@ export const uploadFile = async (file: File): Promise<ApiResponse<Document>> => 
     },
   });
   
-  return data;
+  return unwrapData<Document>(data);
 };

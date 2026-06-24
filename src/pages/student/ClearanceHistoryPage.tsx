@@ -17,7 +17,7 @@ export default function ClearanceHistoryPage() {
 
   if (isLoading) return <div>Loading...</div>;
 
-  const requests = res?.data || [];
+  const requests = res || [];
   // For history, typically we might show completed (APPROVED/REJECTED) requests.
   const historyRequests = requests.filter(r => r.status !== 'PENDING');
 

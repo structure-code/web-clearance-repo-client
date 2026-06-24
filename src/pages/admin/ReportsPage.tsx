@@ -13,8 +13,8 @@ export default function ReportsPage() {
 
   if (reqLoading || deptLoading) return <div>Loading reports...</div>;
 
-  const requests = reqRes?.data || [];
-  const departments = deptRes?.data || [];
+  const requests = reqRes || [];
+  const departments = deptRes || [];
 
   const deptStats = departments.map(d => {
     const deptReqs = requests.filter(r => r.departmentId === d.id);
