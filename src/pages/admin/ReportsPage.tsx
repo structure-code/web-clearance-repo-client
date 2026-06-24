@@ -8,8 +8,7 @@ import { getDepartments } from '../../api/departments.api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const STATUS_COLORS = {
-  approved: '#22C55E',
-  completed: '#15803D',
+  completed: '#22C55E',
   pending: '#F59E0B',
   underReview: '#38BDF8',
   rejected: '#EF4444',
@@ -30,7 +29,6 @@ export default function ReportsPage() {
       department: d.name,
       code: d.code,
       total: deptReqs.length,
-      approved: deptReqs.filter(r => r.status === 'APPROVED').length,
       completed: deptReqs.filter(r => r.status === 'COMPLETED').length,
       pending: deptReqs.filter(r => r.status === 'PENDING').length,
       underReview: deptReqs.filter(r => r.status === 'UNDER_REVIEW').length,
@@ -61,7 +59,6 @@ export default function ReportsPage() {
                   <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} allowDecimals={false} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '8px'}} />
                   <Legend verticalAlign="bottom" height={36} />
-                  <Bar dataKey="approved" name="Approved" stackId="status" fill={STATUS_COLORS.approved} />
                   <Bar dataKey="completed" name="Completed" stackId="status" fill={STATUS_COLORS.completed} />
                   <Bar dataKey="pending" name="Pending" stackId="status" fill={STATUS_COLORS.pending} />
                   <Bar dataKey="underReview" name="Under Review" stackId="status" fill={STATUS_COLORS.underReview} />
@@ -83,7 +80,6 @@ export default function ReportsPage() {
               <TableRow>
                 <TableHead>Department</TableHead>
                 <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right text-success">Approved</TableHead>
                 <TableHead className="text-right text-success">Completed</TableHead>
                 <TableHead className="text-right text-warning">Pending</TableHead>
                 <TableHead className="text-right">Under Review</TableHead>
@@ -94,7 +90,7 @@ export default function ReportsPage() {
             <TableBody>
               {deptStats.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                     No department data available.
                   </TableCell>
                 </TableRow>
@@ -103,13 +99,12 @@ export default function ReportsPage() {
                   <TableRow key={stat.code}>
                     <TableCell className="font-medium">{stat.department}</TableCell>
                     <TableCell className="text-right">{stat.total}</TableCell>
-                    <TableCell className="text-right">{stat.approved}</TableCell>
                     <TableCell className="text-right">{stat.completed}</TableCell>
                     <TableCell className="text-right">{stat.pending}</TableCell>
                     <TableCell className="text-right">{stat.underReview}</TableCell>
                     <TableCell className="text-right">{stat.rejected}</TableCell>
                     <TableCell className="text-right">
-                      {stat.total > 0 ? Math.round(((stat.approved + stat.completed) / stat.total) * 100) : 0}%
+                      {stat.total > 0 ? Math.round((stat.completed / stat.total) * 100) : 0}%
                     </TableCell>
                   </TableRow>
                 ))

@@ -10,8 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import gsap from 'gsap';
 
 const STATUS_COLORS = {
-  approved: '#22C55E',
-  completed: '#15803D',
+  completed: '#22C55E',
   pending: '#F59E0B',
   underReview: '#38BDF8',
   rejected: '#EF4444',
@@ -32,17 +31,14 @@ export default function AdminDashboardPage() {
   const deptsCount = departments.length;
   const reqsCount = requests.length;
 
-  const approved = requests.filter(r => r.status === 'APPROVED').length;
   const completed = requests.filter(r => r.status === 'COMPLETED').length;
   const pending = requests.filter(r => r.status === 'PENDING').length;
   const underReview = requests.filter(r => r.status === 'UNDER_REVIEW').length;
   const rejected = requests.filter(r => r.status === 'REJECTED').length;
 
-  const clearedCount = approved + completed;
-  const approvalRate = reqsCount > 0 ? Math.round((clearedCount / reqsCount) * 100) : 0;
+  const clearedRate = reqsCount > 0 ? Math.round((completed / reqsCount) * 100) : 0;
 
   const pieData = [
-    { name: 'Approved', value: approved, color: STATUS_COLORS.approved },
     { name: 'Completed', value: completed, color: STATUS_COLORS.completed },
     { name: 'Pending', value: pending, color: STATUS_COLORS.pending },
     { name: 'Under Review', value: underReview, color: STATUS_COLORS.underReview },
@@ -55,7 +51,6 @@ export default function AdminDashboardPage() {
     return {
       name: d.code,
       total: deptReqs.length,
-      approved: deptReqs.filter(r => r.status === 'APPROVED').length,
       completed: deptReqs.filter(r => r.status === 'COMPLETED').length,
       pending: deptReqs.filter(r => r.status === 'PENDING').length,
       underReview: deptReqs.filter(r => r.status === 'UNDER_REVIEW').length,
@@ -78,7 +73,7 @@ export default function AdminDashboardPage() {
         });
       }
     });
-  }, [studentsCount, deptsCount, reqsCount, approvalRate]);
+  }, [studentsCount, deptsCount, reqsCount, clearedRate]);
 
   return (
     <div className="space-y-6">
@@ -125,7 +120,7 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[3] = el; }} data-value={approvalRate}>{approvalRate}</span>%
+              <span ref={(el) => { countersRef.current[3] = el; }} data-value={clearedRate}>{clearedRate}</span>%
             </div>
           </CardContent>
         </Card>
@@ -150,7 +145,6 @@ export default function AdminDashboardPage() {
                     <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} allowDecimals={false} />
                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
                     <Legend verticalAlign="bottom" height={36} />
-                    <Bar dataKey="approved" name="Approved" stackId="status" fill={STATUS_COLORS.approved} />
                     <Bar dataKey="completed" name="Completed" stackId="status" fill={STATUS_COLORS.completed} />
                     <Bar dataKey="pending" name="Pending" stackId="status" fill={STATUS_COLORS.pending} />
                     <Bar dataKey="underReview" name="Under Review" stackId="status" fill={STATUS_COLORS.underReview} />

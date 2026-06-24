@@ -22,7 +22,7 @@ export default function StudentDashboardPage() {
 
   const requests = requestsRes || [];
 
-  const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
+  const completedCount = requests.filter(r => r.status === 'COMPLETED').length;
   const pendingCount = requests.filter(r => r.status === 'PENDING' || r.status === 'UNDER_REVIEW').length;
   const rejectedCount = requests.filter(r => r.status === 'REJECTED').length;
   const totalCount = requests.length;
@@ -48,7 +48,7 @@ export default function StudentDashboardPage() {
         }
       });
     }
-  }, [reqLoading, approvedCount, pendingCount, rejectedCount, totalCount]);
+  }, [reqLoading, completedCount, pendingCount, rejectedCount, totalCount]);
 
   if (reqLoading) {
     return <div>Loading dashboard...</div>;
@@ -94,12 +94,12 @@ export default function StudentDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-success">Approved</CardTitle>
+            <CardTitle className="text-sm font-medium text-success">Completed</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[1] = el; }} data-value={approvedCount}>{approvedCount}</span>
+              <span ref={(el) => { countersRef.current[1] = el; }} data-value={completedCount}>{completedCount}</span>
             </div>
           </CardContent>
         </Card>

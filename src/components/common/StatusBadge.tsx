@@ -19,7 +19,6 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
 
 const getStatusBadgeClass = (status: string) => {
   switch (status?.toUpperCase()) {
-    case 'APPROVED':
     case 'COMPLETED':
       return 'bg-success text-success-foreground';
     case 'PENDING':

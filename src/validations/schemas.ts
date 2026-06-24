@@ -57,10 +57,6 @@ export const createClearanceRequestSchema = z.object({
   })).min(1, { message: "At least one document is required" }),
 });
 
-export const approveSchema = z.object({
-  remarks: z.string().optional(),
-});
-
 export const rejectSchema = z.object({
   remarks: z.string().min(5, { message: "Rejection remarks are required" }),
 });

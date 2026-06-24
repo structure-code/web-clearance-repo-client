@@ -23,8 +23,7 @@ export default function FacultyDashboardPage() {
   const requests = res || [];
   const reviewableRequests = requests.filter(r => r.status === 'PENDING' || r.status === 'UNDER_REVIEW');
   const pendingCount = reviewableRequests.length;
-  // Assume today's approved for simple demo
-  const approvedToday = requests.filter(r => r.status === 'APPROVED' && new Date(r.updatedAt).toDateString() === new Date().toDateString()).length;
+  const completedToday = requests.filter(r => r.status === 'COMPLETED' && new Date(r.updatedAt).toDateString() === new Date().toDateString()).length;
   const totalProcessed = requests.filter(r => r.status !== 'PENDING' && r.status !== 'UNDER_REVIEW').length;
 
   useEffect(() => {
@@ -44,7 +43,7 @@ export default function FacultyDashboardPage() {
         }
       });
     }
-  }, [isLoading, pendingCount, approvedToday, totalProcessed]);
+  }, [isLoading, pendingCount, completedToday, totalProcessed]);
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -66,12 +65,12 @@ export default function FacultyDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-success">Approved Today</CardTitle>
+            <CardTitle className="text-sm font-medium text-success">Completed Today</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[1] = el; }} data-value={approvedToday}>{approvedToday}</span>
+              <span ref={(el) => { countersRef.current[1] = el; }} data-value={completedToday}>{completedToday}</span>
             </div>
           </CardContent>
         </Card>

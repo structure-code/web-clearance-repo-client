@@ -11,7 +11,6 @@ export const formatDate = (dateString: string | undefined, formatStr = 'PPP') =>
 
 export const getStatusColor = (status: string) => {
   switch (status?.toUpperCase()) {
-    case 'APPROVED':
     case 'COMPLETED':
       return 'success';
     case 'PENDING':

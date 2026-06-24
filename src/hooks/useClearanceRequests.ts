@@ -3,7 +3,6 @@ import {
   getClearanceRequests,
   getClearanceRequestById,
   createClearanceRequest,
-  approveClearanceRequest,
   rejectClearanceRequest,
   completeClearanceRequest
 } from '../api/clearance.api';
@@ -30,17 +29,6 @@ export const useCreateClearanceRequest = () => {
     mutationFn: (data: CreateClearanceRequestDto) => createClearanceRequest(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
-    },
-  });
-};
-
-export const useApproveClearanceRequest = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, remarks }: { id: string; remarks?: string }) => approveClearanceRequest(id, remarks),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['clearance-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['clearance-requests', variables.id] });
     },
   });
 };
