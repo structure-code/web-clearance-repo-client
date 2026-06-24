@@ -9,7 +9,6 @@ import {
   Building2,
   FileText,
   History,
-  CheckSquare,
   LogOut,
   User as UserIcon,
   Menu,
@@ -53,7 +52,6 @@ export const AppLayout = () => {
 
   const studentLinks = [
     { to: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/student/clearance-status', icon: CheckSquare, label: 'Clearance Status' },
     { to: '/student/requests', icon: FileText, label: 'My Requests' },
     { to: '/student/history', icon: History, label: 'History' },
     { to: '/student/certificate', icon: Award, label: 'Certificate' },

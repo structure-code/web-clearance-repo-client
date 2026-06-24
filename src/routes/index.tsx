@@ -16,7 +16,6 @@ import VerifyCertificatePage from '../pages/VerifyCertificatePage';
 
 // Student
 import StudentDashboardPage from '../pages/student/StudentDashboardPage';
-import ClearanceStatusPage from '../pages/student/ClearanceStatusPage';
 import ClearanceRequestsPage from '../pages/student/ClearanceRequestsPage';
 import NewClearanceRequestPage from '../pages/student/NewClearanceRequestPage';
 import ClearanceHistoryPage from '../pages/student/ClearanceHistoryPage';
@@ -59,7 +58,6 @@ export default function AppRouter() {
 
         <Route path="/student">
           <Route path="dashboard" element={<StudentDashboardPage />} />
-          <Route path="clearance-status" element={<ClearanceStatusPage />} />
           <Route path="requests" element={<ClearanceRequestsPage />} />
           <Route path="requests/new" element={<NewClearanceRequestPage />} />
           <Route path="requests/:id" element={<RequestDetailPage />} />

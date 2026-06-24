@@ -1,17 +1,34 @@
 import React from 'react';
 import { Badge } from '../ui/badge';
-import { formatStatusLabel, getStatusColor } from '../../utils/helpers';
+import { cn } from '../../lib/utils';
+import { formatStatusLabel } from '../../utils/helpers';
 
 interface StatusBadgeProps {
   status: string;
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const variant = getStatusColor(status);
+  const colorClass = getStatusBadgeClass(status);
   
   return (
-    <Badge variant={variant as any}>
+    <Badge className={cn('border-transparent shadow-xs', colorClass)}>
       {formatStatusLabel(status)}
     </Badge>
   );
+};
+
+const getStatusBadgeClass = (status: string) => {
+  switch (status?.toUpperCase()) {
+    case 'APPROVED':
+    case 'COMPLETED':
+      return 'bg-success text-success-foreground';
+    case 'PENDING':
+      return 'bg-warning text-warning-foreground';
+    case 'UNDER_REVIEW':
+      return 'bg-sky-500 text-white';
+    case 'REJECTED':
+      return 'bg-destructive text-destructive-foreground';
+    default:
+      return 'bg-secondary text-secondary-foreground';
+  }
 };
