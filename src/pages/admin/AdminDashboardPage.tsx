@@ -9,7 +9,7 @@ import { Users, Building2, FileText, CheckCircle2, Clock, XCircle } from 'lucide
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import gsap from 'gsap';
 
-const COLORS = ['#22C55E', '#F59E0B', '#EF4444'];
+const COLORS = ['#22C55E', '#F59E0B', '#38BDF8', '#EF4444'];
 
 export default function AdminDashboardPage() {
   const countersRef = useRef<(HTMLSpanElement | null)[]>([]);
@@ -28,6 +28,7 @@ export default function AdminDashboardPage() {
 
   const approved = requests.filter(r => r.status === 'APPROVED').length;
   const pending = requests.filter(r => r.status === 'PENDING').length;
+  const underReview = requests.filter(r => r.status === 'UNDER_REVIEW').length;
   const rejected = requests.filter(r => r.status === 'REJECTED').length;
 
   const approvalRate = reqsCount > 0 ? Math.round((approved / reqsCount) * 100) : 0;
@@ -35,6 +36,7 @@ export default function AdminDashboardPage() {
   const pieData = [
     { name: 'Approved', value: approved },
     { name: 'Pending', value: pending },
+    { name: 'Under Review', value: underReview },
     { name: 'Rejected', value: rejected },
   ];
 

@@ -15,12 +15,20 @@ export const getStatusColor = (status: string) => {
     case 'COMPLETED':
       return 'success';
     case 'PENDING':
+    case 'UNDER_REVIEW':
       return 'warning';
     case 'REJECTED':
       return 'destructive';
     default:
       return 'secondary';
   }
+};
+
+export const formatStatusLabel = (status: string) => {
+  return status
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export const getRoleColor = (role: string) => {

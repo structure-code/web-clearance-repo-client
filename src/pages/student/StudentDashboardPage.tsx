@@ -23,7 +23,7 @@ export default function StudentDashboardPage() {
   const requests = requestsRes || [];
 
   const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
-  const pendingCount = requests.filter(r => r.status === 'PENDING').length;
+  const pendingCount = requests.filter(r => r.status === 'PENDING' || r.status === 'UNDER_REVIEW').length;
   const rejectedCount = requests.filter(r => r.status === 'REJECTED').length;
   const totalCount = requests.length;
 

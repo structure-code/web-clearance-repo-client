@@ -22,6 +22,7 @@ export default function ReviewRequestsPage() {
 
   const requests = res || [];
   const filteredRequests = filter === 'ALL' ? requests : requests.filter(r => r.status === filter);
+  const canReviewStatus = (status: string) => status === 'PENDING' || status === 'UNDER_REVIEW';
 
   return (
     <div className="space-y-6">
@@ -38,6 +39,7 @@ export default function ReviewRequestsPage() {
                 <SelectContent>
                   <SelectItem value="ALL">All Status</SelectItem>
                   <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="UNDER_REVIEW">Under Review</SelectItem>
                   <SelectItem value="APPROVED">Approved</SelectItem>
                   <SelectItem value="REJECTED">Rejected</SelectItem>
                 </SelectContent>
@@ -70,9 +72,9 @@ export default function ReviewRequestsPage() {
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell><StatusBadge status={req.status} /></TableCell>
                     <TableCell>
-                      <Button variant={req.status === 'PENDING' ? 'default' : 'ghost'} size="sm" asChild>
+                      <Button variant={canReviewStatus(req.status) ? 'default' : 'ghost'} size="sm" asChild>
                         <Link to={`/faculty/requests/${req.id}`}>
-                          {req.status === 'PENDING' ? 'Review' : 'View'}
+                          {canReviewStatus(req.status) ? 'Review' : 'View'}
                         </Link>
                       </Button>
                     </TableCell>

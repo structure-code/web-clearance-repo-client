@@ -36,7 +36,7 @@ export interface Document {
   fileSize: number;
 }
 
-export type ClearanceStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+export type ClearanceStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 
 export interface ClearanceRequest {
   id: string;

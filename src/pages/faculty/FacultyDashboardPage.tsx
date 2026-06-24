@@ -21,10 +21,11 @@ export default function FacultyDashboardPage() {
   });
 
   const requests = res || [];
-  const pendingCount = requests.filter(r => r.status === 'PENDING').length;
+  const reviewableRequests = requests.filter(r => r.status === 'PENDING' || r.status === 'UNDER_REVIEW');
+  const pendingCount = reviewableRequests.length;
   // Assume today's approved for simple demo
   const approvedToday = requests.filter(r => r.status === 'APPROVED' && new Date(r.updatedAt).toDateString() === new Date().toDateString()).length;
-  const totalProcessed = requests.filter(r => r.status !== 'PENDING').length;
+  const totalProcessed = requests.filter(r => r.status !== 'PENDING' && r.status !== 'UNDER_REVIEW').length;
 
   useEffect(() => {
     if (!isLoading) {
@@ -95,7 +96,7 @@ export default function FacultyDashboardPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          {requests.filter(r => r.status === 'PENDING').length === 0 ? (
+          {reviewableRequests.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               No pending requests at the moment.
             </div>
@@ -110,7 +111,7 @@ export default function FacultyDashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.filter(r => r.status === 'PENDING').slice(0, 5).map(req => (
+                {reviewableRequests.slice(0, 5).map(req => (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.student?.name}</TableCell>
                     <TableCell>{req.student?.email}</TableCell>

@@ -35,6 +35,7 @@ export default function RequestDetailPage() {
   const canReview = user?.role === 'DEPARTMENT_OFFICER' || user?.role === 'ADMIN';
   const canComplete = user?.role === 'ADMIN' && request.status !== 'COMPLETED';
   const reviewerRemarks = request.remarks || request.comment;
+  const canReviewStatus = request.status === 'PENDING' || request.status === 'UNDER_REVIEW';
 
   const handleApprove = async () => {
     try {
@@ -147,7 +148,7 @@ export default function RequestDetailPage() {
             </CardContent>
           </Card>
 
-          {canReview && request.status === 'PENDING' && (
+          {canReview && canReviewStatus && (
             <Card>
               <CardContent className="p-4 space-y-3">
                 <Button className="w-full bg-success hover:bg-success/90 text-success-foreground" onClick={() => setApproveOpen(true)}>

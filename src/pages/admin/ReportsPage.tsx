@@ -24,6 +24,7 @@ export default function ReportsPage() {
       total: deptReqs.length,
       approved: deptReqs.filter(r => r.status === 'APPROVED').length,
       pending: deptReqs.filter(r => r.status === 'PENDING').length,
+      underReview: deptReqs.filter(r => r.status === 'UNDER_REVIEW').length,
       rejected: deptReqs.filter(r => r.status === 'REJECTED').length,
     };
   }).sort((a, b) => b.total - a.total);
@@ -46,6 +47,7 @@ export default function ReportsPage() {
                 <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '8px'}} />
                 <Bar dataKey="approved" stackId="a" fill="#22C55E" />
                 <Bar dataKey="pending" stackId="a" fill="#F59E0B" />
+                <Bar dataKey="underReview" stackId="a" fill="#38BDF8" />
                 <Bar dataKey="rejected" stackId="a" fill="#EF4444" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -65,6 +67,7 @@ export default function ReportsPage() {
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right text-success">Approved</TableHead>
                 <TableHead className="text-right text-warning">Pending</TableHead>
+                <TableHead className="text-right">Under Review</TableHead>
                 <TableHead className="text-right text-destructive">Rejected</TableHead>
                 <TableHead className="text-right">Approval Rate</TableHead>
               </TableRow>
@@ -76,6 +79,7 @@ export default function ReportsPage() {
                   <TableCell className="text-right">{stat.total}</TableCell>
                   <TableCell className="text-right">{stat.approved}</TableCell>
                   <TableCell className="text-right">{stat.pending}</TableCell>
+                  <TableCell className="text-right">{stat.underReview}</TableCell>
                   <TableCell className="text-right">{stat.rejected}</TableCell>
                   <TableCell className="text-right">
                     {stat.total > 0 ? Math.round((stat.approved / stat.total) * 100) : 0}%
