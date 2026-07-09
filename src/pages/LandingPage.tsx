@@ -11,7 +11,6 @@ import {
   Search,
   ShieldCheck,
   UserRound,
-  UsersRound,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -87,7 +86,7 @@ export default function LandingPage() {
       <main>
         <section className="relative flex min-h-[88svh] items-center overflow-hidden bg-primary pt-20 text-primary-foreground">
           <img
-            src="/opengraph.jpg"
+            src="/landing-hero.png"
             alt=""
             className="absolute inset-0 h-full w-full object-cover object-center opacity-35"
           />

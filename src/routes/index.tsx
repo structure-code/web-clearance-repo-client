@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
+import { Route, Routes, Outlet } from 'react-router-dom';
 import { AppLayout } from '../components/layouts/AppLayout';
 import { AuthLayout } from '../components/layouts/AuthLayout';
 import { ProtectedRoute } from './ProtectedRoute';
