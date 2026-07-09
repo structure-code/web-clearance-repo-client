@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import whiteBgLogo from '@/assets/white-bg-logo.jpg';
 
 export const AuthLayout = () => {
   return (
@@ -13,22 +14,24 @@ export const AuthLayout = () => {
 
         <div className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded bg-white text-primary flex items-center justify-center font-bold text-2xl">
-              C
-            </div>
-            <span className="font-bold text-2xl tracking-tight">ClearPath</span>
+            <img
+              src={whiteBgLogo}
+              alt="Admiralty University of Nigeria logo"
+              className="h-11 w-11 rounded bg-white object-contain p-1"
+            />
+            <span className="font-bold text-2xl tracking-tight">ADUN Clearance Portal</span>
           </div>
         </div>
 
         <div className="relative z-10 max-w-md">
-          <h1 className="text-4xl font-bold mb-4">University Clearance, Simplified.</h1>
+          <h1 className="text-4xl font-bold mb-4">ADUN Clearance, Simplified.</h1>
           <p className="text-primary-foreground/80 text-lg leading-relaxed">
-            The authoritative platform for managing academic clearance. Secure, transparent, and seamless graduation processing.
+            The authoritative platform for managing Admiralty University of Nigeria academic clearance. Secure, transparent, and seamless graduation processing.
           </p>
         </div>
 
         <div className="relative z-10 text-sm text-primary-foreground/60">
-          &copy; {new Date().getFullYear()} University Administration. All rights reserved.
+          &copy; {new Date().getFullYear()} Admiralty University of Nigeria. All rights reserved.
         </div>
       </div>
       
