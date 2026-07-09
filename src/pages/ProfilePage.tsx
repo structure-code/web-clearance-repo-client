@@ -8,7 +8,7 @@ export default function ProfilePage() {
   const { user } = useAuth();
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-6">
       <PageHeader title="My Profile" description="Manage your account settings and preferences." />
 
       <Card>

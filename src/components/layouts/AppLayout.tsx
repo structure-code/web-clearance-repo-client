@@ -55,11 +55,13 @@ export const AppLayout = () => {
     { to: '/student/requests', icon: FileText, label: 'My Requests' },
     { to: '/student/history', icon: History, label: 'History' },
     { to: '/student/certificate', icon: Award, label: 'Certificate' },
+    { to: '/profile', icon: UserIcon, label: 'Profile' },
   ];
 
   const facultyLinks = [
     { to: '/faculty/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/faculty/requests', icon: FileText, label: 'Review Requests' },
+    { to: '/profile', icon: UserIcon, label: 'Profile' },
   ];
 
   const adminLinks = [
@@ -68,6 +70,7 @@ export const AppLayout = () => {
     { to: '/admin/departments', icon: Building2, label: 'Departments' },
     { to: '/admin/reports', icon: FileText, label: 'Reports' },
     { to: '/admin/activity-logs', icon: Activity, label: 'Activity Logs' },
+    { to: '/profile', icon: UserIcon, label: 'Profile' },
   ];
 
   let links: any[] = [];
