@@ -13,6 +13,7 @@ import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
 import VerifyCertificatePage from '../pages/VerifyCertificatePage';
+import LandingPage from '../pages/LandingPage';
 
 // Student
 import StudentDashboardPage from '../pages/student/StudentDashboardPage';
@@ -41,7 +42,7 @@ import NotFound from '../pages/not-found';
 export default function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<LandingPage />} />
       <Route path="/verify-certificate" element={<VerifyCertificatePage />} />
       
       <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
