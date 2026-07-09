@@ -31,6 +31,7 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import logo from '@/assets/logo.png';
 
 export const AppLayout = () => {
   const { user, logout } = useAuth();
@@ -106,10 +107,8 @@ export const AppLayout = () => {
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex flex-col w-64 border-r bg-card px-4 py-6 fixed h-full">
         <div className="flex items-center gap-2 mb-8 px-2">
-          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-            C
-          </div>
-          <span className="font-bold text-lg text-foreground tracking-tight">ClearPath</span>
+          <img src={logo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 object-contain" />
+          <span className="font-bold text-lg text-foreground tracking-tight">ADUN Clearance</span>
         </div>
         <nav className="flex-1 space-y-1">
           <NavLinks />
@@ -129,17 +128,15 @@ export const AppLayout = () => {
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-6">
                 <div className="flex items-center gap-2 mb-8">
-                  <div className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-                    C
-                  </div>
-                  <span className="font-bold text-lg tracking-tight">ClearPath</span>
+                  <img src={logo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 object-contain" />
+                  <span className="font-bold text-lg tracking-tight">ADUN Clearance</span>
                 </div>
                 <nav className="space-y-1 mt-4">
                   <NavLinks />
                 </nav>
               </SheetContent>
             </Sheet>
-            <span className="font-bold">ClearPath</span>
+            <span className="font-bold">ADUN Clearance</span>
           </div>
 
           <div className="hidden md:flex flex-1" />

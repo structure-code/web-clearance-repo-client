@@ -6,7 +6,6 @@ import {
   BarChart3,
   Building2,
   CheckCircle2,
-  FileCheck2,
   LockKeyhole,
   Search,
   ShieldCheck,
@@ -14,6 +13,8 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import logo from '@/assets/logo.png';
+import whiteBgLogo from '@/assets/white-bg-logo.jpg';
 
 const roles = [
   {
@@ -50,11 +51,13 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-primary/85 text-primary-foreground backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3" aria-label="ClearPath home">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-white text-lg font-bold text-primary">
-              C
-            </span>
-            <span className="text-lg font-bold tracking-tight">ClearPath</span>
+          <Link to="/" className="flex items-center gap-3" aria-label="ADUN Clearance Portal home">
+            <img
+              src={whiteBgLogo}
+              alt="Admiralty University of Nigeria logo"
+              className="h-10 w-10 rounded-md bg-white object-contain p-1"
+            />
+            <span className="text-lg font-bold tracking-tight">ADUN Clearance Portal</span>
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm font-medium text-primary-foreground/80 md:flex">
@@ -96,13 +99,13 @@ export default function LandingPage() {
             <div className="max-w-3xl self-center">
               <div className="mb-6 inline-flex items-center gap-2 rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-sm text-primary-foreground/85 backdrop-blur">
                 <ShieldCheck className="h-4 w-4" />
-                University clearance, approvals, and certificates
+                Admiralty University clearance, approvals, and certificates
               </div>
               <h1 className="max-w-4xl text-4xl font-bold tracking-normal sm:text-5xl lg:text-6xl">
-                ClearPath
+                ADUN Clearance Portal
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-primary-foreground/82">
-                A secure academic clearance platform that helps students submit requests, departments approve them, and institutions issue certificates that anyone can verify.
+                A secure academic clearance platform for Admiralty University of Nigeria that helps students submit requests, departments approve them, and the university issue certificates that anyone can verify.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -180,7 +183,7 @@ export default function LandingPage() {
                 One clearance system for every office involved.
               </h2>
               <p className="mt-4 text-base leading-7 text-muted-foreground">
-                ClearPath keeps each user focused on the work they are allowed to do while preserving a single trusted record for the institution.
+                The ADUN Clearance Portal keeps each user focused on the work they are allowed to do while preserving a single trusted record for the institution.
               </p>
             </div>
 
@@ -227,10 +230,10 @@ export default function LandingPage() {
       <footer className="border-t bg-card">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
           <div className="flex items-center gap-2 font-semibold text-foreground">
-            <FileCheck2 className="h-4 w-4" />
-            ClearPath
+            <img src={logo} alt="Admiralty University of Nigeria logo" className="h-8 w-8 object-contain" />
+            ADUN Clearance Portal
           </div>
-          <p>&copy; {new Date().getFullYear()} University Administration. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Admiralty University of Nigeria. All rights reserved.</p>
         </div>
       </footer>
     </div>
