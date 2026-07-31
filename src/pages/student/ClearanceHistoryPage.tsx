@@ -18,7 +18,7 @@ export default function ClearanceHistoryPage() {
   if (isLoading) return <div>Loading...</div>;
 
   const requests = res || [];
-  const activeStatuses = ['PENDING', 'UNDER_REVIEW'];
+  const activeStatuses = ['PENDING', 'UNDER_REVIEW', 'APPROVED'];
   const historyRequests = requests.filter(r => !activeStatuses.includes(r.status));
 
   return (

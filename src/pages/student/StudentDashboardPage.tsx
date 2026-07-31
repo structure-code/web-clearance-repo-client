@@ -23,6 +23,7 @@ export default function StudentDashboardPage() {
   const requests = requestsRes || [];
 
   const completedCount = requests.filter(r => r.status === 'COMPLETED').length;
+  const approvedCount = requests.filter(r => r.status === 'APPROVED').length;
   const pendingCount = requests.filter(r => r.status === 'PENDING' || r.status === 'UNDER_REVIEW').length;
   const rejectedCount = requests.filter(r => r.status === 'REJECTED').length;
   const totalCount = requests.length;
@@ -48,7 +49,7 @@ export default function StudentDashboardPage() {
         }
       });
     }
-  }, [reqLoading, completedCount, pendingCount, rejectedCount, totalCount]);
+  }, [reqLoading, completedCount, approvedCount, pendingCount, rejectedCount, totalCount]);
 
   if (reqLoading) {
     return <div>Loading dashboard...</div>;
@@ -80,7 +81,7 @@ export default function StudentDashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
@@ -105,12 +106,23 @@ export default function StudentDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-emerald-600">Approved</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              <span ref={(el) => { countersRef.current[2] = el; }} data-value={approvedCount}>{approvedCount}</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-warning">Pending</CardTitle>
             <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[2] = el; }} data-value={pendingCount}>{pendingCount}</span>
+              <span ref={(el) => { countersRef.current[3] = el; }} data-value={pendingCount}>{pendingCount}</span>
             </div>
           </CardContent>
         </Card>
@@ -121,7 +133,7 @@ export default function StudentDashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[3] = el; }} data-value={rejectedCount}>{rejectedCount}</span>
+              <span ref={(el) => { countersRef.current[4] = el; }} data-value={rejectedCount}>{rejectedCount}</span>
             </div>
           </CardContent>
         </Card>

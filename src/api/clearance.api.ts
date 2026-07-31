@@ -22,6 +22,14 @@ export const createClearanceRequest = async (
   return unwrapData<ClearanceRequest>(data);
 };
 
+export const approveClearanceRequest = async (
+  id: string,
+  remarks?: string,
+): Promise<ClearanceRequest> => {
+  const { data } = await apiClient.patch(`/clearance-requests/${id}/approve`, { remarks });
+  return unwrapData<ClearanceRequest>(data);
+};
+
 export const rejectClearanceRequest = async (
   id: string,
   remarks: string,

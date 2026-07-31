@@ -36,7 +36,7 @@ export interface Document {
   fileSize: number;
 }
 
-export type ClearanceStatus = 'PENDING' | 'UNDER_REVIEW' | 'REJECTED' | 'COMPLETED';
+export type ClearanceStatus = 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
 
 export interface ClearanceRequest {
   id: string;
@@ -50,6 +50,9 @@ export interface ClearanceRequest {
   comment?: string;
   reviewedById?: string;
   reviewedAt?: string;
+  clearedByOfficerName?: string;
+  clearedBySignatureUrl?: string;
+  clearedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -84,9 +87,13 @@ export interface ResetPasswordDto {
   token: string;
 }
 
-export interface CreateClearanceRequestDto {
+export interface DepartmentSubmissionDto {
   departmentId: string;
-  documents: Document[];
+  documents?: Document[];
+}
+
+export interface CreateClearanceRequestDto {
+  submissions: DepartmentSubmissionDto[];
 }
 
 export interface UpdateClearanceStatusDto {

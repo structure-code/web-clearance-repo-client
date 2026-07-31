@@ -78,18 +78,22 @@ export const createUserSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
+const clearanceDocumentSchema = z.object({
+  fileName: z.string(),
+  fileUrl: z.string(),
+  fileType: z.string(),
+  fileSize: z.number(),
+});
+
 export const createClearanceRequestSchema = z.object({
-  departmentId: z.string().min(1, { message: "Department is required" }),
-  documents: z
+  submissions: z
     .array(
       z.object({
-        fileName: z.string(),
-        fileUrl: z.string(),
-        fileType: z.string(),
-        fileSize: z.number(),
+        departmentId: z.string().min(1),
+        documents: z.array(clearanceDocumentSchema).optional(),
       }),
     )
-    .min(1, { message: "At least one document is required" }),
+    .min(1, { message: "At least one department is required" }),
 });
 
 export const rejectSchema = z.object({

@@ -25,6 +25,8 @@ const getStatusBadgeClass = (status: string) => {
       return 'bg-warning text-warning-foreground';
     case 'UNDER_REVIEW':
       return 'bg-sky-500 text-white';
+    case 'APPROVED':
+      return 'bg-emerald-500 text-white';
     case 'REJECTED':
       return 'bg-destructive text-destructive-foreground';
     default:

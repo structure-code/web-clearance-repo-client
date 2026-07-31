@@ -10,7 +10,7 @@ import { Button } from '../../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Textarea } from '../../components/ui/textarea';
 
-import { useClearanceRequest, useRejectClearanceRequest, useCompleteClearanceRequest } from '../../hooks/useClearanceRequests';
+import { useClearanceRequest, useApproveClearanceRequest, useRejectClearanceRequest, useCompleteClearanceRequest } from '../../hooks/useClearanceRequests';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatFileSize } from '../../utils/helpers';
 import { FileText, Download } from 'lucide-react';
@@ -20,10 +20,12 @@ export default function RequestDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [completeOpen, setCompleteOpen] = useState(false);
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [forceCompleteOpen, setForceCompleteOpen] = useState(false);
   const [remarks, setRemarks] = useState('');
 
   const { data: res, isLoading } = useClearanceRequest(id || '');
+  const approveMut = useApproveClearanceRequest();
   const rejectMut = useRejectClearanceRequest();
   const completeMut = useCompleteClearanceRequest();
 
@@ -31,17 +33,28 @@ export default function RequestDetailPage() {
   if (!res) return <div>Request not found</div>;
 
   const request = res;
-  const canReview = user?.role === 'DEPARTMENT_OFFICER' || user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN';
+  const canReview = user?.role === 'DEPARTMENT_OFFICER' || isAdmin;
   const reviewerRemarks = request.remarks || request.comment;
   const canReviewStatus = request.status === 'PENDING' || request.status === 'UNDER_REVIEW';
 
-  const handleCompleteReview = async () => {
+  const handleApprove = async () => {
+    try {
+      await approveMut.mutateAsync({ id: request.id });
+      toast.success('Request approved successfully');
+      setApproveOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to approve request');
+    }
+  };
+
+  const handleForceComplete = async () => {
     try {
       await completeMut.mutateAsync(request.id);
-      toast.success('Request completed successfully');
-      setCompleteOpen(false);
+      toast.success('Request marked as completed');
+      setForceCompleteOpen(false);
     } catch (err: any) {
-      toast.error('Failed to complete request');
+      toast.error(err.response?.data?.message || 'Failed to complete request');
     }
   };
 
@@ -140,8 +153,8 @@ export default function RequestDetailPage() {
           {canReview && canReviewStatus && (
             <Card>
               <CardContent className="p-4 space-y-3">
-                <Button className="w-full bg-success hover:bg-success/90 text-success-foreground" onClick={() => setCompleteOpen(true)}>
-                  Complete Request
+                <Button className="w-full bg-success hover:bg-success/90 text-success-foreground" onClick={() => setApproveOpen(true)}>
+                  Approve Request
                 </Button>
                 <Button className="w-full" variant="destructive" onClick={() => setRejectOpen(true)}>
                   Reject Request
@@ -150,20 +163,56 @@ export default function RequestDetailPage() {
             </Card>
           )}
 
+          {isAdmin && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">Admin Override</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Force this request directly to Completed, bypassing the normal approval flow.
+                </p>
+                <Button className="w-full" variant="outline" onClick={() => setForceCompleteOpen(true)}>
+                  Force Complete
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
         </div>
       </div>
 
-      {/* Complete Dialog */}
-      <Dialog open={completeOpen} onOpenChange={setCompleteOpen}>
+      {/* Approve Dialog */}
+      <Dialog open={approveOpen} onOpenChange={setApproveOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Complete Clearance</DialogTitle>
+            <DialogTitle>Approve Clearance</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <p className="text-sm text-muted-foreground">Are you sure you want to complete this clearance request? This action cannot be undone easily.</p>
+            <p className="text-sm text-muted-foreground">
+              Approving requires your officer signature to be on file. This request will be signed off using your name and saved signature.
+            </p>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setCompleteOpen(false)}>Cancel</Button>
-              <Button onClick={handleCompleteReview} disabled={completeMut.isPending}>
+              <Button variant="outline" onClick={() => setApproveOpen(false)}>Cancel</Button>
+              <Button onClick={handleApprove} disabled={approveMut.isPending}>
+                {approveMut.isPending ? 'Approving...' : 'Confirm Approval'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Force Complete Dialog (Admin only) */}
+      <Dialog open={forceCompleteOpen} onOpenChange={setForceCompleteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Force Complete Clearance</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-muted-foreground">Are you sure you want to force this clearance request to Completed? This bypasses the normal approval flow and cannot be undone easily.</p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setForceCompleteOpen(false)}>Cancel</Button>
+              <Button onClick={handleForceComplete} disabled={completeMut.isPending}>
                 {completeMut.isPending ? 'Completing...' : 'Confirm Completion'}
               </Button>
             </div>
