@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Upload, PenTool } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "../hooks/useAuth";
+import { useUploadFile } from "../hooks/useUploadFile";
 import { PageHeader } from "../components/common/PageHeader";
 import {
   Card,
@@ -36,12 +37,15 @@ export default function ProfilePage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const uploadFile = useUploadFile();
+  const [isSavingSignature, setIsSavingSignature] = useState(false);
+
+  const canApproveClearances = user?.role === "DEPARTMENT_OFFICER" || user?.role === "ADMIN";
 
   const profileForm = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.name ?? "",
-      email: user?.email ?? "",
     },
   });
 
@@ -57,20 +61,36 @@ export default function ProfilePage() {
   useEffect(() => {
     profileForm.reset({
       name: user?.name ?? "",
-      email: user?.email ?? "",
     });
-  }, [profileForm, user?.email, user?.name]);
+  }, [profileForm, user?.name]);
 
   const handleProfileSubmit = async (values: ProfileInput) => {
     try {
       const updatedUser = await updateProfile({
         name: values.name,
-        email: values.email,
       });
       setUser(updatedUser);
       toast.success("Profile updated successfully.");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update profile.");
+    }
+  };
+
+  const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsSavingSignature(true);
+    try {
+      const uploaded = await uploadFile.mutateAsync(file);
+      const updatedUser = await updateProfile({ signatureUrl: uploaded.fileUrl });
+      setUser(updatedUser);
+      toast.success("Signature saved. You can now approve clearance requests.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to save signature.");
+    } finally {
+      setIsSavingSignature(false);
+      e.target.value = "";
     }
   };
 
@@ -143,24 +163,6 @@ export default function ProfilePage() {
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={profileForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          {...field}
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -320,6 +322,61 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       </div>
+
+      {canApproveClearances && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PenTool className="h-4 w-4" />
+              Approval Signature
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Your signature is stamped onto clearance requests when you approve them. You must have a signature on file before you can approve any request.
+            </p>
+
+            {user?.signatureUrl ? (
+              <div className="flex items-center gap-4">
+                <img
+                  src={user.signatureUrl}
+                  alt="Your saved signature"
+                  className="h-16 rounded-md border bg-white object-contain px-3"
+                />
+                <span className="text-sm text-success">Signature on file</span>
+              </div>
+            ) : (
+              <p className="text-sm text-warning">
+                No signature on file yet. Upload one below to enable approvals.
+              </p>
+            )}
+
+            <div>
+              <Input
+                type="file"
+                accept="image/png,image/jpeg"
+                className="hidden"
+                id="signature-upload"
+                onChange={handleSignatureUpload}
+                disabled={isSavingSignature}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("signature-upload")?.click()}
+                disabled={isSavingSignature}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {isSavingSignature
+                  ? "Saving..."
+                  : user?.signatureUrl
+                    ? "Replace Signature"
+                    : "Upload Signature"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

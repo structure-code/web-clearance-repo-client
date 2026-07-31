@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -190,7 +190,7 @@ export default function RequestDetailPage() {
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <p className="text-sm text-muted-foreground">
-              Approving requires your officer signature to be on file. This request will be signed off using your name and saved signature.
+              Approving requires your officer signature to be on file. This request will be signed off using your name and saved signature. Don't have one saved yet? <Link to="/profile" className="underline">Set it up in your profile</Link>.
             </p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setApproveOpen(false)}>Cancel</Button>

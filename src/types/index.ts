@@ -9,6 +9,7 @@ export interface User {
   role: UserRole;
   departmentId?: string;
   isActive: boolean;
+  signatureUrl?: string;
   createdAt: string;
 }
 
@@ -94,6 +95,12 @@ export interface DepartmentSubmissionDto {
 
 export interface CreateClearanceRequestDto {
   submissions: DepartmentSubmissionDto[];
+}
+
+export interface UpdateProfileDto {
+  name?: string;
+  departmentId?: string;
+  signatureUrl?: string;
 }
 
 export interface UpdateClearanceStatusDto {

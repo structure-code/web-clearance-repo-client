@@ -4,7 +4,7 @@ import {
   LoginCredentials,
   RegisterDto,
   ResetPasswordDto,
-  UpdateUserDto,
+  UpdateProfileDto,
   User,
   VerifyEmailDto,
 } from "../types";
@@ -59,9 +59,9 @@ export const resetPassword = async (
 };
 
 export const updateProfile = async (
-  payload: Pick<UpdateUserDto, "name" | "email">,
+  payload: UpdateProfileDto,
 ): Promise<User> => {
-  const { data } = await apiClient.patch("/auth/profile", payload);
+  const { data } = await apiClient.patch("/auth/me/profile", payload);
   return unwrapData<User>(data);
 };
 
@@ -69,6 +69,6 @@ export const changePassword = async (payload: {
   currentPassword: string;
   newPassword: string;
 }): Promise<null> => {
-  const { data } = await apiClient.post("/auth/change-password", payload);
+  const { data } = await apiClient.post("/auth/me/change-password", payload);
   return unwrapData<null>(data);
 };
