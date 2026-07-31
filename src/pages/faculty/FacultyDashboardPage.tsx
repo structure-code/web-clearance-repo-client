@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import gsap from 'gsap';
-import { Clock, CheckCircle2, FileText, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle2, FileText, ArrowRight, ClipboardCheck } from 'lucide-react';
 
+import { useAuth } from '../../hooks/useAuth';
 import { PageHeader } from '../../components/common/PageHeader';
-import { StatusBadge } from '../../components/common/StatusBadge';
+import { StatCard } from '../../components/common/StatCard';
+import { EmptyState } from '../../components/common/EmptyState';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
@@ -13,8 +14,7 @@ import { getClearanceRequests } from '../../api/clearance.api';
 import { formatDate } from '../../utils/helpers';
 
 export default function FacultyDashboardPage() {
-  const countersRef = useRef<(HTMLSpanElement | null)[]>([]);
-
+  const { user } = useAuth();
   const { data: res, isLoading } = useQuery({
     queryKey: ['clearance-requests'],
     queryFn: getClearanceRequests,
@@ -25,66 +25,33 @@ export default function FacultyDashboardPage() {
   const pendingCount = reviewableRequests.length;
   const completedToday = requests.filter(r => r.status === 'COMPLETED' && new Date(r.updatedAt).toDateString() === new Date().toDateString()).length;
   const totalProcessed = requests.filter(r => r.status !== 'PENDING' && r.status !== 'UNDER_REVIEW').length;
+  const firstName = user?.name?.split(' ')[0];
 
-  useEffect(() => {
-    if (!isLoading) {
-      countersRef.current.forEach((el) => {
-        if (el) {
-          const targetValue = parseInt(el.getAttribute('data-value') || '0', 10);
-          gsap.fromTo(el, { innerHTML: 0 }, {
-            innerHTML: targetValue,
-            duration: 1.5,
-            ease: 'power2.out',
-            snap: { innerHTML: 1 },
-            onUpdate: function () {
-              if (el) el.innerHTML = Math.round(this.targets()[0].innerHTML).toString();
-            },
-          });
-        }
-      });
-    }
-  }, [isLoading, pendingCount, completedToday, totalProcessed]);
-
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-64 animate-pulse rounded bg-muted" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-muted" />
+          ))}
+        </div>
+        <div className="h-64 animate-pulse rounded-lg bg-muted" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Department Officer Dashboard" description="Manage and review student clearance requests." />
+      <PageHeader
+        title={firstName ? `Welcome back, ${firstName}` : 'Department Officer Dashboard'}
+        description="Here's what's waiting on your desk."
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-warning">Pending Reviews</CardTitle>
-            <Clock className="h-4 w-4 text-warning" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[0] = el; }} data-value={pendingCount}>{pendingCount}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-success">Completed Today</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[1] = el; }} data-value={completedToday}>{completedToday}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Processed</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[2] = el; }} data-value={totalProcessed}>{totalProcessed}</span>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StatCard label="Pending Reviews" value={pendingCount} icon={Clock} tone="warning" />
+        <StatCard label="Completed Today" value={completedToday} icon={CheckCircle2} tone="success" />
+        <StatCard label="Total Processed" value={totalProcessed} icon={FileText} tone="navy" />
       </div>
 
       <Card>
@@ -96,9 +63,11 @@ export default function FacultyDashboardPage() {
         </CardHeader>
         <CardContent>
           {reviewableRequests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No pending requests at the moment.
-            </div>
+            <EmptyState
+              icon={ClipboardCheck}
+              title="Nothing pending"
+              description="You're all caught up — no requests are waiting on your review right now."
+            />
           ) : (
             <Table>
               <TableHeader>

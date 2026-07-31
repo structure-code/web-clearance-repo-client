@@ -1,13 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '../../hooks/useAuth';
 import { PageHeader } from '../../components/common/PageHeader';
+import { StatCard } from '../../components/common/StatCard';
+import { EmptyState } from '../../components/common/EmptyState';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { getClearanceRequests } from '../../api/clearance.api';
 import { getDepartments } from '../../api/departments.api';
 import { getUsers } from '../../api/users.api';
-import { Users, Building2, FileText, CheckCircle2 } from 'lucide-react';
+import { Users, Building2, FileText, CheckCircle2, BarChart3 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import gsap from 'gsap';
 
 const STATUS_COLORS = {
   completed: '#22C55E',
@@ -17,8 +19,7 @@ const STATUS_COLORS = {
 };
 
 export default function AdminDashboardPage() {
-  const countersRef = useRef<(HTMLSpanElement | null)[]>([]);
-
+  const { user } = useAuth();
   const { data: reqRes } = useQuery({ queryKey: ['clearance-requests'], queryFn: getClearanceRequests });
   const { data: deptRes } = useQuery({ queryKey: ['departments'], queryFn: getDepartments });
   const { data: usersRes } = useQuery({ queryKey: ['users'], queryFn: getUsers });
@@ -37,6 +38,7 @@ export default function AdminDashboardPage() {
   const rejected = requests.filter(r => r.status === 'REJECTED').length;
 
   const clearedRate = reqsCount > 0 ? Math.round((completed / reqsCount) * 100) : 0;
+  const firstName = user?.name?.split(' ')[0];
 
   const pieData = [
     { name: 'Completed', value: completed, color: STATUS_COLORS.completed },
@@ -58,72 +60,18 @@ export default function AdminDashboardPage() {
     };
   }).filter((department) => department.total > 0).sort((a, b) => b.total - a.total).slice(0, 10);
 
-  useEffect(() => {
-    countersRef.current.forEach((el) => {
-      if (el) {
-        const targetValue = parseInt(el.getAttribute('data-value') || '0', 10);
-        gsap.fromTo(el, { innerHTML: 0 }, {
-          innerHTML: targetValue,
-          duration: 1.5,
-          ease: 'power2.out',
-          snap: { innerHTML: 1 },
-          onUpdate: function () {
-            if (el) el.innerHTML = Math.round(this.targets()[0].innerHTML).toString();
-          },
-        });
-      }
-    });
-  }, [studentsCount, deptsCount, reqsCount, clearedRate]);
-
   return (
     <div className="space-y-6">
-      <PageHeader title="Admin Dashboard" description="System-wide metrics and administrative overview." />
+      <PageHeader
+        title={firstName ? `Welcome back, ${firstName}` : 'Admin Dashboard'}
+        description="System-wide metrics and administrative overview."
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[0] = el; }} data-value={studentsCount}>{studentsCount}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Departments</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[1] = el; }} data-value={deptsCount}>{deptsCount}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[2] = el; }} data-value={reqsCount}>{reqsCount}</span>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Cleared Rate</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span ref={(el) => { countersRef.current[3] = el; }} data-value={clearedRate}>{clearedRate}</span>%
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard label="Total Students" value={studentsCount} icon={Users} tone="navy" />
+        <StatCard label="Departments" value={deptsCount} icon={Building2} tone="gold" />
+        <StatCard label="Total Requests" value={reqsCount} icon={FileText} tone="muted" />
+        <StatCard label="Cleared Rate" value={clearedRate} suffix="%" icon={CheckCircle2} tone="success" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -133,8 +81,8 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {deptData.length === 0 ? (
-              <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
-                No request data to display yet.
+              <div className="flex h-[300px] items-center justify-center">
+                <EmptyState icon={BarChart3} title="No request data yet" description="Once students start submitting clearance requests, department activity will appear here." />
               </div>
             ) : (
               <div className="h-[300px]">
@@ -162,8 +110,8 @@ export default function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {pieData.length === 0 ? (
-              <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
-                No request statuses to display yet.
+              <div className="flex h-[300px] items-center justify-center">
+                <EmptyState icon={BarChart3} title="No request statuses yet" description="Status breakdowns will appear here once requests start coming in." />
               </div>
             ) : (
               <div className="h-[300px]">
