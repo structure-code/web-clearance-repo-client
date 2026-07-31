@@ -56,14 +56,24 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
-export const createDepartmentSchema = z.object({
-  name: z.string().min(2, { message: "Department name is required" }),
-  code: z
-    .string()
-    .min(2, { message: "Department code is required" })
-    .toUpperCase(),
-  isActive: z.boolean().optional(),
-});
+export const createDepartmentSchema = z
+  .object({
+    name: z.string().min(2, { message: "Department name is required" }),
+    code: z
+      .string()
+      .min(2, { message: "Department code is required" })
+      .toUpperCase(),
+    isActive: z.boolean().optional(),
+    requiresDocument: z.boolean().optional(),
+    requiredDocumentDescription: z.string().optional(),
+  })
+  .refine(
+    (data) => !data.requiresDocument || !!data.requiredDocumentDescription?.trim(),
+    {
+      message: "Describe what document students need to attach",
+      path: ["requiredDocumentDescription"],
+    },
+  );
 
 export const createUserSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),

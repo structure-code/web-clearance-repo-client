@@ -3,6 +3,8 @@ export interface Department {
   name: string;
   code: string;
   isActive: boolean;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
   createdAt?: string;
   updatedAt?: string;
   users?: any[];
@@ -11,12 +13,16 @@ export interface Department {
 export interface CreateDepartmentDto {
   name: string;
   code: string;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
 }
 
 export interface UpdateDepartmentDto {
   name?: string;
   code?: string;
   isActive?: boolean;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
 }
 
 export interface AssignOfficerDto {

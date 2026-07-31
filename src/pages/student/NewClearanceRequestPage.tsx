@@ -13,6 +13,7 @@ import { Button } from '../../components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Form, FormField, FormItem, FormMessage } from '../../components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Upload, X, File as FileIcon } from 'lucide-react';
 import { formatFileSize } from '../../utils/helpers';
@@ -30,6 +31,10 @@ export default function NewClearanceRequestPage() {
   const [uploadingDeptId, setUploadingDeptId] = useState<string | null>(null);
 
   const { data: departments = [] } = useActiveDepartments();
+
+  const missingRequiredDepts = departments.filter(
+    dept => dept.requiresDocument && (documentsByDept[dept.id] || []).length === 0,
+  );
 
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
@@ -98,11 +103,16 @@ export default function NewClearanceRequestPage() {
                     return (
                       <Card key={dept.id} className="border-dashed">
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium">{dept.name}</CardTitle>
+                          <CardTitle className="text-sm font-medium flex items-center gap-2">
+                            {dept.name}
+                            {dept.requiresDocument && <Badge variant="secondary">Document Required</Badge>}
+                          </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <Label className="text-xs text-muted-foreground">
-                            Supporting document (optional)
+                            {dept.requiresDocument
+                              ? dept.requiredDocumentDescription || 'A supporting document is required for this department.'
+                              : 'Supporting document (optional)'}
                           </Label>
                           <div className="flex items-center gap-3">
                             <Input
@@ -123,6 +133,10 @@ export default function NewClearanceRequestPage() {
                               {uploadingDeptId === dept.id ? 'Uploading...' : 'Attach File'}
                             </Button>
                           </div>
+
+                          {dept.requiresDocument && docs.length === 0 && (
+                            <p className="text-xs font-medium text-destructive">A document is required before you can submit.</p>
+                          )}
 
                           {docs.length > 0 && (
                             <div className="space-y-2">
@@ -161,9 +175,15 @@ export default function NewClearanceRequestPage() {
                 )}
               />
 
+              {missingRequiredDepts.length > 0 && (
+                <p className="text-sm text-destructive">
+                  Please attach a document for: {missingRequiredDepts.map(d => d.name).join(', ')}.
+                </p>
+              )}
+
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
-                <Button type="submit" disabled={createReq.isPending || departments.length === 0}>
+                <Button type="submit" disabled={createReq.isPending || departments.length === 0 || missingRequiredDepts.length > 0}>
                   {createReq.isPending ? 'Submitting...' : 'Submit Clearance Requests'}
                 </Button>
               </div>

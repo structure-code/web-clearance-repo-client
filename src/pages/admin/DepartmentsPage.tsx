@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 
 import { getDepartments, createDepartment, updateDepartment, deleteDepartment, assignOfficerToDepartment } from '../../api/departments.api';
@@ -39,10 +40,11 @@ export default function DepartmentsPage() {
 
   const form = useForm({
     resolver: zodResolver(createDepartmentSchema),
-    defaultValues: { name: '', code: '', isActive: true },
+    defaultValues: { name: '', code: '', isActive: true, requiresDocument: false, requiredDocumentDescription: '' },
   });
 
   const { errors } = form.formState;
+  const requiresDocument = form.watch('requiresDocument');
 
   useEffect(() => {
     if (editingDept) {
@@ -50,9 +52,11 @@ export default function DepartmentsPage() {
         name: editingDept.name,
         code: editingDept.code,
         isActive: editingDept.isActive ?? true,
+        requiresDocument: editingDept.requiresDocument ?? false,
+        requiredDocumentDescription: editingDept.requiredDocumentDescription ?? '',
       });
     } else {
-      form.reset({ name: '', code: '', isActive: true });
+      form.reset({ name: '', code: '', isActive: true, requiresDocument: false, requiredDocumentDescription: '' });
     }
   }, [editingDept, form]);
 
@@ -168,6 +172,33 @@ export default function DepartmentsPage() {
                 {errors.code && <p className="text-sm font-medium text-destructive">{errors.code.message as string}</p>}
               </div>
               
+              <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <input
+                  id="requiresDocument"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary mt-0.5"
+                  {...form.register('requiresDocument')}
+                />
+                <div className="space-y-1 leading-none">
+                  <label htmlFor="requiresDocument" className="text-sm font-medium cursor-pointer">Requires supporting document</label>
+                  <p className="text-xs text-muted-foreground">Students must attach a document when requesting clearance from this department.</p>
+                </div>
+              </div>
+
+              {requiresDocument && (
+                <div className="space-y-2">
+                  <label htmlFor="requiredDocumentDescription" className="text-sm font-medium leading-none">What document is needed?</label>
+                  <Textarea
+                    id="requiredDocumentDescription"
+                    placeholder="e.g. Upload your signed library clearance slip"
+                    {...form.register('requiredDocumentDescription')}
+                  />
+                  {errors.requiredDocumentDescription && (
+                    <p className="text-sm font-medium text-destructive">{errors.requiredDocumentDescription.message as string}</p>
+                  )}
+                </div>
+              )}
+
               {editingDept && (
                 <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <input
@@ -243,15 +274,16 @@ export default function DepartmentsPage() {
                 <TableHead>Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Users Count</TableHead>
+                <TableHead>Document</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8">Loading...</TableCell></TableRow>
               ) : departments?.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8">No departments found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8">No departments found.</TableCell></TableRow>
               ) : (
                 Array.isArray(departments) && departments.map((d: Department, i: number) => (
                   <TableRow key={d.id}>
@@ -259,6 +291,13 @@ export default function DepartmentsPage() {
                     <TableCell className="font-medium">{d.code}</TableCell>
                     <TableCell>{d.name}</TableCell>
                     <TableCell>{d.users?.length || 0}</TableCell>
+                    <TableCell>
+                      {d.requiresDocument ? (
+                        <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-sky-500/10 text-sky-600">Required</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Optional</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${d.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
                         {d.isActive ? 'Active' : 'Inactive'}
