@@ -31,7 +31,10 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
-import logo from '@/assets/logo.png';
+import whiteBgLogo from '@/assets/white-bg-logo.jpg';
+
+const NAVY = '#0B1E3D';
+const GOLD = '#C89B3C';
 
 export const AppLayout = () => {
   const { user, logout } = useAuth();
@@ -88,13 +91,12 @@ export const AppLayout = () => {
           <Link
             key={link.to}
             to={link.to}
-            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-              isActive
-                ? 'bg-primary text-primary-foreground font-medium'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            className={`flex items-center gap-3 rounded-sm border-l-2 px-3 py-2 text-sm transition-colors ${
+              isActive ? 'text-white font-medium' : 'border-transparent text-white/60 hover:bg-white/5 hover:text-white'
             }`}
+            style={isActive ? { backgroundColor: 'rgba(200,155,60,0.14)', borderColor: GOLD } : undefined}
           >
-            <Icon size={18} />
+            <Icon size={18} style={{ color: isActive ? GOLD : undefined }} />
             <span>{link.label}</span>
           </Link>
         );
@@ -105,10 +107,10 @@ export const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 border-r bg-card px-4 py-6 fixed h-full">
-        <div className="flex items-center gap-2 mb-8 px-2">
-          <img src={logo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 object-contain" />
-          <span className="font-bold text-lg text-foreground tracking-tight">ADUN Clearance</span>
+      <aside className="hidden md:flex flex-col w-64 px-3 py-6 fixed h-full" style={{ backgroundColor: NAVY }}>
+        <div className="flex items-center gap-2 mb-8 px-3">
+          <img src={whiteBgLogo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 rounded bg-white object-contain p-1" />
+          <span className="font-semibold text-[15px] text-white tracking-tight">ADUN Clearance</span>
         </div>
         <nav className="flex-1 space-y-1">
           <NavLinks />
@@ -118,7 +120,7 @@ export const AppLayout = () => {
       {/* Main Content */}
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-10">
+        <header className="h-16 border-b bg-card flex items-center justify-between px-4 sticky top-0 z-10" style={{ borderBottomColor: 'rgba(11,30,61,0.1)' }}>
           <div className="flex items-center gap-4 md:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -126,17 +128,17 @@ export const AppLayout = () => {
                   <Menu size={20} />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-6">
+              <SheetContent side="left" className="w-64 p-6 border-none" style={{ backgroundColor: NAVY }}>
                 <div className="flex items-center gap-2 mb-8">
-                  <img src={logo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 object-contain" />
-                  <span className="font-bold text-lg tracking-tight">ADUN Clearance</span>
+                  <img src={whiteBgLogo} alt="Admiralty University of Nigeria logo" className="h-9 w-9 rounded bg-white object-contain p-1" />
+                  <span className="font-semibold text-white tracking-tight">ADUN Clearance</span>
                 </div>
                 <nav className="space-y-1 mt-4">
                   <NavLinks />
                 </nav>
               </SheetContent>
             </Sheet>
-            <span className="font-bold">ADUN Clearance</span>
+            <span className="font-semibold" style={{ color: NAVY }}>ADUN Clearance</span>
           </div>
 
           <div className="hidden md:flex flex-1" />
@@ -157,8 +159,8 @@ export const AppLayout = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary/10 text-primary">
+                  <Avatar className="h-8 w-8" style={{ border: `1.5px solid ${GOLD}` }}>
+                    <AvatarFallback style={{ backgroundColor: 'rgba(11,30,61,0.08)', color: NAVY }}>
                       {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
