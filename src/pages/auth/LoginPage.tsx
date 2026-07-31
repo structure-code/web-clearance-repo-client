@@ -55,10 +55,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div ref={formRef} className="bg-card p-8 rounded-xl shadow-sm border border-border">
-      <div className="mb-8 text-center md:text-left">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h2>
-        <p className="text-muted-foreground mt-1">Please enter your details to sign in.</p>
+    <div ref={formRef}>
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: '#C89B3C' }}>Sign in</p>
+        <h2 className="mt-2 text-3xl" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#0B1E3D' }}>Welcome back</h2>
+        <p className="mt-2 text-[#5B6472]">Enter your details to access your clearance dashboard.</p>
       </div>
 
       <Form {...form}>
@@ -120,19 +121,19 @@ export default function LoginPage() {
                 Remember me
               </label>
             </div>
-            <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+            <Link to="/forgot-password" className="text-sm font-medium hover:underline" style={{ color: '#0B1E3D' }}>
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          <Button type="submit" className="w-full" style={{ backgroundColor: '#0B1E3D', color: '#fff' }} disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
 
           {/* New Section: Register Redirect */}
-          <div className="text-center text-sm text-muted-foreground mt-4">
+          <div className="text-center text-sm text-[#5B6472] mt-4">
             Don&apos;t have an account?{' '}
-            <Link to="/register" className="font-medium text-primary hover:underline">
+            <Link to="/register" className="font-medium hover:underline" style={{ color: '#0B1E3D' }}>
               Create an account
             </Link>
           </div>

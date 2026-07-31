@@ -69,16 +69,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div
-      ref={formRef}
-      className="bg-card p-8 my-15 rounded-xl shadow-sm border border-border"
-    >
-      <div className="mb-8 text-center md:text-left">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
-          Create an account
+    <div ref={formRef}>
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: '#C89B3C' }}>Get started</p>
+        <h2 className="mt-2 text-3xl" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#0B1E3D' }}>
+          Create your account
         </h2>
-        <p className="text-muted-foreground mt-1">
-          Enter your details below to get started.
+        <p className="mt-2 text-[#5B6472]">
+          Set up your student account to start a clearance request.
         </p>
       </div>
 
@@ -198,17 +196,19 @@ export default function RegisterPage() {
           <Button
             type="submit"
             className="w-full mt-2"
+            style={{ backgroundColor: '#0B1E3D', color: '#fff' }}
             disabled={isLoading}
           >
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
 
           {/* Login Redirect Section */}
-          <div className="text-center text-sm text-muted-foreground mt-4">
+          <div className="text-center text-sm text-[#5B6472] mt-4">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-primary hover:underline"
+              className="font-medium hover:underline"
+              style={{ color: '#0B1E3D' }}
             >
               Sign in
             </Link>
