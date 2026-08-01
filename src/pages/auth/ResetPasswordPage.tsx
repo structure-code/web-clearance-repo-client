@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import gsap from "gsap";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") || "";
   const navigate = useNavigate();
+  const formRef = useRef<HTMLDivElement>(null);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -32,6 +34,16 @@ export default function ResetPasswordPage() {
       confirmPassword: "",
     },
   });
+
+  useEffect(() => {
+    if (formRef.current) {
+      gsap.fromTo(
+        formRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+      );
+    }
+  }, []);
 
   const onSubmit = async (values: any) => {
     try {
@@ -48,12 +60,13 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="bg-card p-8 rounded-xl shadow-sm border border-border">
-      <div className="mb-8 text-center md:text-left">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+    <div ref={formRef}>
+      <div className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: '#C89B3C' }}>Reset password</p>
+        <h2 className="mt-2 text-3xl" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#0B1E3D' }}>
           Set new password
         </h2>
-        <p className="text-muted-foreground mt-1">
+        <p className="mt-2 text-[#5B6472]">
           Please enter your new password below.
         </p>
       </div>
@@ -133,10 +146,17 @@ export default function ResetPasswordPage() {
           <Button
             type="submit"
             className="w-full"
+            style={{ backgroundColor: '#0B1E3D', color: '#fff' }}
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? "Resetting..." : "Reset Password"}
           </Button>
+
+          <div className="text-center text-sm text-[#5B6472] mt-4">
+            <Link to="/login" className="font-medium hover:underline" style={{ color: '#0B1E3D' }}>
+              Back to login
+            </Link>
+          </div>
         </form>
       </Form>
     </div>
