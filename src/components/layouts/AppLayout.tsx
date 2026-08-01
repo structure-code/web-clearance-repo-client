@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, Outlet } from 'react-router-dom';
 import gsap from 'gsap';
 import { useAuth } from '../../hooks/useAuth';
@@ -144,9 +144,6 @@ export const AppLayout = () => {
           <div className="hidden md:flex flex-1" />
 
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </Button>
             <Button variant="ghost" size="icon" className="relative" asChild>
               <Link to="/notifications" aria-label="Notifications">
                 <Bell size={18} />
