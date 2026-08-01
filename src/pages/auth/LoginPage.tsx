@@ -71,7 +71,7 @@ export default function LoginPage() {
               <FormItem>
                 <FormLabel>Matriculation Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. ADUN/FS/SEN/22/043" {...field} />
+                  <Input placeholder="e.g. ADUN/FS/SEN/22/074" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

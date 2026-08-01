@@ -120,7 +120,7 @@ export default function RegisterPage() {
                 <FormLabel>Matriculation Number</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="e.g. ADUN/FS/SEN/22/043"
+                    placeholder="e.g. ADUN/FS/SEN/22/074"
                     disabled={isLoading}
                     {...field}
                   />
