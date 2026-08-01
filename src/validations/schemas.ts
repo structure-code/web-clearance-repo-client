@@ -3,7 +3,8 @@ import { z } from "zod";
 export const registerSchema = z
   .object({
     name: z.string().min(2, "Full Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
+    matricNo: z.string().min(2, "Matriculation number is required"),
+    departmentId: z.string().min(1, "Department is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
@@ -12,7 +13,12 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
-export const loginSchema = z.object({
+export const studentLoginSchema = z.object({
+  matricNo: z.string().min(1, { message: "Matriculation number is required" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+export const adminLoginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(1, { message: "Password is required" }),
 });
@@ -110,6 +116,7 @@ export const rejectSchema = z.object({
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
-export type LoginInput = z.infer<typeof loginSchema>;
+export type StudentLoginInput = z.infer<typeof studentLoginSchema>;
+export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

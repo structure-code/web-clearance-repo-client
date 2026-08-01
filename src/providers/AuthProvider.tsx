@@ -1,17 +1,22 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User, LoginCredentials, ApiResponse } from "../types";
+import { User, StudentLoginCredentials, AdminLoginCredentials, ApiResponse } from "../types";
 import {
   getCurrentUser,
-  login as apiLogin,
+  studentLogin as apiStudentLogin,
+  adminLogin as apiAdminLogin,
   logout as apiLogout,
 } from "../api/auth.api";
 import Loader from "../components/ui/loader";
+
+type LoginArgs =
+  | ({ mode: "student" } & StudentLoginCredentials)
+  | ({ mode: "admin" } & AdminLoginCredentials);
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginCredentials) => Promise<User>;
+  login: (credentials: LoginArgs) => Promise<User>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
 }
@@ -41,9 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchUser();
   }, []);
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginArgs) => {
     try {
-      await apiLogin(credentials);
+      if (credentials.mode === "student") {
+        await apiStudentLogin({ matricNo: credentials.matricNo, password: credentials.password });
+      } else {
+        await apiAdminLogin({ email: credentials.email, password: credentials.password });
+      }
       const data = await getCurrentUser();
       setUser(data);
       return data;

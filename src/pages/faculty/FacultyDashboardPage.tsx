@@ -82,7 +82,7 @@ export default function FacultyDashboardPage() {
                 {reviewableRequests.slice(0, 5).map(req => (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.student?.name}</TableCell>
-                    <TableCell>{req.student?.email}</TableCell>
+                    <TableCell>{req.student?.email || req.student?.matricNo || '—'}</TableCell>
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm" asChild>

@@ -56,7 +56,7 @@ export default function UsersPage() {
         name: editingUser.name,
         email: editingUser.email,
         password: '', // Keep blank during edits unless changing it
-        role: editingUser.role,
+        role: editingUser.role as any,
         departmentId: editingUser.departmentId || 'none',
         isActive: editingUser.isActive,
       });
@@ -248,7 +248,7 @@ export default function UsersPage() {
                           {u.name}
                         </div>
                       </TableCell>
-                      <TableCell>{u.email}</TableCell>
+                      <TableCell>{u.email || u.matricNo || '—'}</TableCell>
                       <TableCell><RoleBadge role={u.role} /></TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {userDept ? userDept.name : '—'}

@@ -36,6 +36,8 @@ export const getRoleColor = (role: string) => {
       return 'bg-primary text-primary-foreground';
     case 'DEPARTMENT_OFFICER':
       return 'bg-accent text-accent-foreground';
+    case 'FACULTY_OFFICER':
+      return 'bg-sky-500 text-white';
     case 'STUDENT':
       return 'bg-success text-success-foreground';
     default:

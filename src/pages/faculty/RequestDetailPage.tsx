@@ -135,7 +135,7 @@ export default function RequestDetailPage() {
               <div>
                 <p className="text-muted-foreground mb-1">Student</p>
                 <p className="font-medium">{request.student?.name}</p>
-                <p className="text-muted-foreground">{request.student?.email}</p>
+                <p className="text-muted-foreground">{request.student?.email || request.student?.matricNo || '—'}</p>
               </div>
               <div>
                 <p className="text-muted-foreground mb-1">Submitted</p>

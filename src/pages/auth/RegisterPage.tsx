@@ -17,12 +17,21 @@ import {
   FormLabel,
   FormMessage,
 } from "../../components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { register } from "../../api/auth.api";
+import { useActiveDepartments } from "../../hooks/useDepartments";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
+  const { data: departments = [] } = useActiveDepartments();
 
   // States for hiding/showing password text
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +42,8 @@ export default function RegisterPage() {
     mode: "onChange",
     defaultValues: {
       name: "",
-      email: "",
+      matricNo: "",
+      departmentId: "",
       password: "",
       confirmPassword: "",
     },
@@ -52,11 +62,11 @@ export default function RegisterPage() {
   const onSubmit = async (values: RegisterInput) => {
     if (isLoading) return;
     setIsLoading(true);
-    
+
     try {
       const { confirmPassword, ...payload } = values;
       await register(payload);
-      toast.success("Registration successful! Please sign in.");
+      toast.success("Registration successful! You can now sign in with your matric number.");
       navigate("/login");
     } catch (error: any) {
       toast.error(
@@ -90,10 +100,10 @@ export default function RegisterPage() {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="John Doe" 
-                    disabled={isLoading} 
-                    {...field} 
+                  <Input
+                    placeholder="John Doe"
+                    disabled={isLoading}
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -101,21 +111,44 @@ export default function RegisterPage() {
             )}
           />
 
-          {/* Email Field */}
+          {/* Matric Number Field */}
           <FormField
             control={form.control}
-            name="email"
+            name="matricNo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Matriculation Number</FormLabel>
                 <FormControl>
                   <Input
-                    type="email"
-                    placeholder="name@example.com"
+                    placeholder="e.g. ADUN/FS/SEN/22/043"
                     disabled={isLoading}
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Department Field */}
+          <FormField
+            control={form.control}
+            name="departmentId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your department" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {departments.map((dept) => (
+                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

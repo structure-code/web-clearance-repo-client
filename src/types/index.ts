@@ -1,13 +1,15 @@
 import type { Department } from "./department";
 
-export type UserRole = 'STUDENT' | 'DEPARTMENT_OFFICER' | 'ADMIN';
+export type UserRole = 'STUDENT' | 'DEPARTMENT_OFFICER' | 'FACULTY_OFFICER' | 'ADMIN';
 
 export interface User {
   id: string;
-  email: string;
+  email?: string;
+  matricNo?: string;
   name?: string;
   role: UserRole;
   departmentId?: string;
+  facultyId?: string;
   isActive: boolean;
   signatureUrl?: string;
   createdAt: string;
@@ -64,15 +66,21 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
-export interface LoginCredentials {
+export interface StudentLoginCredentials {
+  matricNo: string;
+  password: string;
+}
+
+export interface AdminLoginCredentials {
   email: string;
   password: string;
 }
 
 export interface RegisterDto {
-  email: string;
+  matricNo: string;
   password: string;
   name?: string;
+  departmentId: string;
 }
 
 export interface VerifyEmailDto {

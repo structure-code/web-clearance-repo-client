@@ -130,9 +130,9 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Email Address
+                {user?.email ? 'Email Address' : 'Matriculation Number'}
               </p>
-              <p className="text-base">{user?.email}</p>
+              <p className="text-base">{user?.email || user?.matricNo || '—'}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Role</p>

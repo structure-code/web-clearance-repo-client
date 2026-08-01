@@ -1,19 +1,27 @@
 import { apiClient } from "./axios";
 import {
+  AdminLoginCredentials,
   ForgotPasswordDto,
-  LoginCredentials,
   RegisterDto,
   ResetPasswordDto,
+  StudentLoginCredentials,
   UpdateProfileDto,
   User,
   VerifyEmailDto,
 } from "../types";
 import { unwrapData } from "./response";
 
-export const login = async (
-  credentials: LoginCredentials,
+export const studentLogin = async (
+  credentials: StudentLoginCredentials,
 ): Promise<unknown> => {
-  const { data } = await apiClient.post("/auth/login", credentials);
+  const { data } = await apiClient.post("/auth/student/login", credentials);
+  return unwrapData<unknown>(data);
+};
+
+export const adminLogin = async (
+  credentials: AdminLoginCredentials,
+): Promise<unknown> => {
+  const { data } = await apiClient.post("/auth/admin/login", credentials);
   return unwrapData<unknown>(data);
 };
 

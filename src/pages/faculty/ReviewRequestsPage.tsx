@@ -68,7 +68,7 @@ export default function ReviewRequestsPage() {
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">
                       <div>{req.student?.name}</div>
-                      <div className="text-xs text-muted-foreground">{req.student?.email}</div>
+                      <div className="text-xs text-muted-foreground">{req.student?.email || req.student?.matricNo || '—'}</div>
                     </TableCell>
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell><StatusBadge status={req.status} /></TableCell>
