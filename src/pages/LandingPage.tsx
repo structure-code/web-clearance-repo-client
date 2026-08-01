@@ -102,6 +102,7 @@ export default function LandingPage() {
             <a href="#how-it-works" className="transition hover:text-white">How it works</a>
             <a href="#roles" className="transition hover:text-white">Who it's for</a>
             <Link to="/verify-certificate" className="transition hover:text-white">Verify a certificate</Link>
+            <Link to="/staff-login" className="transition hover:text-white">Staff / Admin sign in</Link>
           </nav>
 
           <div className="flex items-center gap-2">

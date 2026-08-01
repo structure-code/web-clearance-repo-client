@@ -7,7 +7,8 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    const isStaffArea = location.pathname.startsWith('/faculty') || location.pathname.startsWith('/admin');
+    return <Navigate to={isStaffArea ? '/staff-login' : '/login'} state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

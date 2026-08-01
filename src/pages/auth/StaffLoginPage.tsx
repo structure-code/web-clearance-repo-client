@@ -6,14 +6,13 @@ import gsap from 'gsap';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
 
-import { studentLoginSchema, type StudentLoginInput } from '../../validations/schemas';
+import { adminLoginSchema, type AdminLoginInput } from '../../validations/schemas';
 import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../components/ui/form';
-import { Checkbox } from '../../components/ui/checkbox';
 
-export default function LoginPage() {
+export default function StaffLoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,7 +21,7 @@ export default function LoginPage() {
 
   const from = location.state?.from?.pathname || null;
 
-  const studentForm = useForm<StudentLoginInput>({ resolver: zodResolver(studentLoginSchema), mode: 'onChange' });
+  const adminForm = useForm<AdminLoginInput>({ resolver: zodResolver(adminLoginSchema), mode: 'onChange' });
 
   useEffect(() => {
     if (formRef.current) {
@@ -45,33 +44,33 @@ export default function LoginPage() {
     navigate(from || roleDashboard, { replace: true });
   };
 
-  const onStudentSubmit = async (values: StudentLoginInput) => {
+  const onAdminSubmit = async (values: AdminLoginInput) => {
     try {
-      const currentUser = await login({ mode: 'student', ...values });
+      const currentUser = await login({ mode: 'admin', ...values });
       redirectAfterLogin(currentUser);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Invalid matriculation number or password');
+      toast.error(error.response?.data?.message || 'Invalid email or password');
     }
   };
 
   return (
     <div ref={formRef}>
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: '#C89B3C' }}>Student sign in</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em]" style={{ color: '#C89B3C' }}>Staff / Admin sign in</p>
         <h2 className="mt-2 text-3xl" style={{ fontFamily: "'Fraunces', Georgia, serif", color: '#0B1E3D' }}>Welcome back</h2>
         <p className="mt-2 text-[#5B6472]">Enter your details to access your clearance dashboard.</p>
       </div>
 
-      <Form {...studentForm} key="student-login">
-        <form onSubmit={studentForm.handleSubmit(onStudentSubmit)} className="space-y-6">
+      <Form {...adminForm} key="admin-login">
+        <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-6">
           <FormField
-            control={studentForm.control}
-            name="matricNo"
+            control={adminForm.control}
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Matriculation Number</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. ADUN/FS/SEN/22/043" {...field} />
+                  <Input placeholder="Enter your email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -79,7 +78,7 @@ export default function LoginPage() {
           />
 
           <FormField
-            control={studentForm.control}
+            control={adminForm.control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -107,23 +106,20 @@ export default function LoginPage() {
             )}
           />
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="remember" />
-              <label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Remember me
-              </label>
-            </div>
+          <div className="flex items-center justify-end">
+            <Link to="/forgot-password" className="text-sm font-medium hover:underline" style={{ color: '#0B1E3D' }}>
+              Forgot password?
+            </Link>
           </div>
 
-          <Button type="submit" className="w-full" style={{ backgroundColor: '#0B1E3D', color: '#fff' }} disabled={studentForm.formState.isSubmitting}>
-            {studentForm.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
+          <Button type="submit" className="w-full" style={{ backgroundColor: '#0B1E3D', color: '#fff' }} disabled={adminForm.formState.isSubmitting}>
+            {adminForm.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>
 
-          <div className="text-center text-sm text-[#5B6472] mt-4">
-            Don&apos;t have an account?{' '}
-            <Link to="/register" className="font-medium hover:underline" style={{ color: '#0B1E3D' }}>
-              Create an account
+          <div className="text-center text-sm text-[#5B6472]">
+            Student?{' '}
+            <Link to="/login" className="font-medium hover:underline" style={{ color: '#0B1E3D' }}>
+              Sign in here
             </Link>
           </div>
         </form>

@@ -9,6 +9,7 @@ import { AdminRoute } from './AdminRoute';
 // Auth
 import RegisterPage from '@/pages/auth/RegisterPage';
 import LoginPage from '../pages/auth/LoginPage';
+import StaffLoginPage from '../pages/auth/StaffLoginPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
@@ -48,6 +49,7 @@ export default function AppRouter() {
       <Route element={<GuestRoute><AuthLayout /></GuestRoute>}>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/staff-login" element={<StaffLoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
