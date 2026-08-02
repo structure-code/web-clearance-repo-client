@@ -45,6 +45,23 @@ export const getRoleColor = (role: string) => {
   }
 };
 
+export const formatSemester = (semester: string | undefined) => {
+  switch (semester) {
+    case 'FIRST':
+      return 'First Semester';
+    case 'SECOND':
+      return 'Second Semester';
+    default:
+      return '';
+  }
+};
+
+export const formatAcademicSession = (session?: { name?: string; semester?: string } | null) => {
+  if (!session?.name) return '—';
+  const semesterLabel = formatSemester(session.semester);
+  return semesterLabel ? `${session.name} — ${semesterLabel}` : session.name;
+};
+
 export const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;

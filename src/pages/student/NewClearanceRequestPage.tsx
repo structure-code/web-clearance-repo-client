@@ -17,7 +17,7 @@ import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Upload, X, File as FileIcon } from 'lucide-react';
-import { formatFileSize } from '../../utils/helpers';
+import { formatFileSize, formatAcademicSession } from '../../utils/helpers';
 import { useActiveDepartments } from '@/hooks/useDepartments';
 import { useActiveAcademicSessions } from '@/hooks/useAcademicSessions';
 import type { Document } from '../../types';
@@ -123,7 +123,7 @@ export default function NewClearanceRequestPage() {
                       </FormControl>
                       <SelectContent>
                         {academicSessions.map(session => (
-                          <SelectItem key={session.id} value={session.id}>{session.name}</SelectItem>
+                          <SelectItem key={session.id} value={session.id}>{formatAcademicSession(session)}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

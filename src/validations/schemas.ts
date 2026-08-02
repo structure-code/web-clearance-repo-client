@@ -134,6 +134,7 @@ export const createAcademicSessionSchema = z.object({
     .string()
     .min(4, { message: "Session name is required, e.g. 2025/2026" })
     .regex(/^\d{4}\/\d{4}$/, { message: "Use the format YYYY/YYYY, e.g. 2025/2026" }),
+  semester: z.enum(['FIRST', 'SECOND']),
   isActive: z.boolean().optional(),
 });
 

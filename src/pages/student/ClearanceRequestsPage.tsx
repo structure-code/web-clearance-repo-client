@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { getClearanceRequests } from '../../api/clearance.api';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatAcademicSession } from '../../utils/helpers';
 import { Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
@@ -75,7 +75,7 @@ export default function ClearanceRequestsPage() {
                 filteredRequests.map(req => (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.department?.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-sm">{req.academicSession?.name || '—'}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{formatAcademicSession(req.academicSession)}</TableCell>
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell><StatusBadge status={req.status} /></TableCell>
                     <TableCell>{formatDate(req.updatedAt)}</TableCell>

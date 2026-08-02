@@ -7,7 +7,7 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Label } from '../../components/ui/label';
-import { formatDate } from '../../utils/helpers';
+import { formatDate, formatAcademicSession } from '../../utils/helpers';
 
 export default function MyCertificatePage() {
   const { data: academicSessions = [] } = useActiveAcademicSessions();
@@ -36,7 +36,7 @@ export default function MyCertificatePage() {
               </SelectTrigger>
               <SelectContent>
                 {academicSessions.map(session => (
-                  <SelectItem key={session.id} value={session.id}>{session.name}</SelectItem>
+                  <SelectItem key={session.id} value={session.id}>{formatAcademicSession(session)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Plus, MoreVertical, Edit, Trash } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
 import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../../components/ui/alert-dialog';
 
 import {
@@ -20,6 +21,7 @@ import {
   useDeleteAcademicSession,
 } from '../../hooks/useAcademicSessions';
 import { createAcademicSessionSchema } from '../../validations/schemas';
+import { formatSemester } from '../../utils/helpers';
 import type { AcademicSession } from '@/types';
 
 export default function AcademicSessionsPage() {
@@ -31,16 +33,20 @@ export default function AcademicSessionsPage() {
 
   const form = useForm({
     resolver: zodResolver(createAcademicSessionSchema),
-    defaultValues: { name: '', isActive: true },
+    defaultValues: { name: '', semester: 'FIRST' as const, isActive: true },
   });
 
   const { errors } = form.formState;
 
   useEffect(() => {
     if (editingSession) {
-      form.reset({ name: editingSession.name, isActive: editingSession.isActive ?? true });
+      form.reset({
+        name: editingSession.name,
+        semester: editingSession.semester ?? 'FIRST',
+        isActive: editingSession.isActive ?? true,
+      });
     } else {
-      form.reset({ name: '', isActive: true });
+      form.reset({ name: '', semester: 'FIRST', isActive: true });
     }
   }, [editingSession, form]);
 
@@ -111,6 +117,29 @@ export default function AcademicSessionsPage() {
                 {errors.name && <p className="text-sm font-medium text-destructive">{errors.name.message as string}</p>}
               </div>
 
+              <div className="space-y-2">
+                <label htmlFor="semester" className="text-sm font-medium leading-none">Semester</label>
+                <Controller
+                  control={form.control}
+                  name="semester"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger id="semester">
+                        <SelectValue placeholder="Select semester" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FIRST">First Semester</SelectItem>
+                        <SelectItem value="SECOND">Second Semester</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.semester && <p className="text-sm font-medium text-destructive">{errors.semester.message as string}</p>}
+                <p className="text-xs text-muted-foreground">
+                  Each session name (e.g. 2025/2026) can have separate First and Second semester entries.
+                </p>
+              </div>
+
               {editingSession && (
                 <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
                   <input
@@ -145,20 +174,22 @@ export default function AcademicSessionsPage() {
               <TableRow>
                 <TableHead className="w-16">S/N</TableHead>
                 <TableHead>Session</TableHead>
+                <TableHead>Semester</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="w-20"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8">Loading...</TableCell></TableRow>
               ) : sessions.length === 0 ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8">No academic sessions found.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8">No academic sessions found.</TableCell></TableRow>
               ) : (
                 sessions.map((s: AcademicSession, i: number) => (
                   <TableRow key={s.id}>
                     <TableCell className="text-muted-foreground">{i + 1}</TableCell>
                     <TableCell className="font-medium">{s.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{formatSemester(s.semester)}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${s.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
                         {s.isActive ? 'Active' : 'Inactive'}

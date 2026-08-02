@@ -101,9 +101,12 @@ export interface AssignFacultyOfficerDto {
   userId: string;
 }
 
+export type Semester = 'FIRST' | 'SECOND';
+
 export interface AcademicSession {
   id: string;
   name: string;
+  semester: Semester;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -111,11 +114,13 @@ export interface AcademicSession {
 
 export interface CreateAcademicSessionDto {
   name: string;
+  semester: Semester;
   isActive?: boolean;
 }
 
 export interface UpdateAcademicSessionDto {
   name?: string;
+  semester?: Semester;
   isActive?: boolean;
 }
 

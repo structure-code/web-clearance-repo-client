@@ -12,7 +12,7 @@ import { Textarea } from '../../components/ui/textarea';
 
 import { useClearanceRequest, useApproveClearanceRequest, useRejectClearanceRequest, useCompleteClearanceRequest } from '../../hooks/useClearanceRequests';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDate, formatFileSize } from '../../utils/helpers';
+import { formatDate, formatFileSize, formatAcademicSession } from '../../utils/helpers';
 import { FileText, Download } from 'lucide-react';
 
 export default function RequestDetailPage() {
@@ -139,7 +139,7 @@ export default function RequestDetailPage() {
               </div>
               <div>
                 <p className="text-muted-foreground mb-1">Academic Session</p>
-                <p className="font-medium">{request.academicSession?.name || '—'}</p>
+                <p className="font-medium">{formatAcademicSession(request.academicSession)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground mb-1">Submitted</p>
