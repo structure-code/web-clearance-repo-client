@@ -81,6 +81,35 @@ export const createDepartmentSchema = z
     },
   );
 
+export const createFacultySchema = z
+  .object({
+    name: z.string().min(2, { message: "Faculty name is required" }),
+    code: z
+      .string()
+      .min(2, { message: "Faculty code is required" })
+      .toUpperCase(),
+    isActive: z.boolean().optional(),
+    requiresDocument: z.boolean().optional(),
+    requiredDocumentDescription: z.string().optional(),
+  })
+  .refine(
+    (data) => !data.requiresDocument || !!data.requiredDocumentDescription?.trim(),
+    {
+      message: "Describe what document students need to attach",
+      path: ["requiredDocumentDescription"],
+    },
+  );
+
+export const createProgramSchema = z.object({
+  name: z.string().min(2, { message: "Program name is required" }),
+  code: z
+    .string()
+    .min(2, { message: "Program code is required" })
+    .toUpperCase(),
+  facultyId: z.string().min(1, { message: "Faculty is required" }),
+  isActive: z.boolean().optional(),
+});
+
 export const createUserSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),

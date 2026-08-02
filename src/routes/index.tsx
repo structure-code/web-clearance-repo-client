@@ -32,6 +32,8 @@ import RequestDetailPage from '../pages/faculty/RequestDetailPage';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import UsersPage from '../pages/admin/UsersPage';
 import DepartmentsPage from '../pages/admin/DepartmentsPage';
+import FacultiesPage from '../pages/admin/FacultiesPage';
+import ProgramsPage from '../pages/admin/ProgramsPage';
 import ReportsPage from '../pages/admin/ReportsPage';
 import ActivityLogsPage from '../pages/admin/ActivityLogsPage';
 
@@ -78,6 +80,8 @@ export default function AppRouter() {
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="departments" element={<DepartmentsPage />} />
+          <Route path="faculties" element={<FacultiesPage />} />
+          <Route path="programs" element={<ProgramsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="activity-logs" element={<ActivityLogsPage />} />
         </Route>
