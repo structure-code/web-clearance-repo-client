@@ -126,7 +126,7 @@ export default function RegisterPage() {
                   <FormLabel>Middle Name</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Optional"
+                      placeholder="Michael"
                       disabled={isLoading}
                       {...field}
                     />
