@@ -37,7 +37,7 @@ export default function ClearanceRequestsPage() {
       <Card>
         <CardContent className="p-0">
           <div className="p-4 border-b flex justify-end">
-            <div className="w-[180px]">
+            <div className="w-45">
               <Select value={filter} onValueChange={setFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by status" />
