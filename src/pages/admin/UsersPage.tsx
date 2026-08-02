@@ -229,7 +229,7 @@ export default function UsersPage() {
                       <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="John" {...field}/></FormControl><FormMessage/></FormItem>
                     )}/>
                     <FormField control={form.control} name="middleName" render={({field}) => (
-                      <FormItem><FormLabel>Middle Name</FormLabel><FormControl><Input placeholder="Optional" {...field}/></FormControl><FormMessage/></FormItem>
+                      <FormItem><FormLabel>Middle Name</FormLabel><FormControl><Input placeholder="Michael" {...field}/></FormControl><FormMessage/></FormItem>
                     )}/>
                     <FormField control={form.control} name="lastName" render={({field}) => (
                       <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Doe" {...field}/></FormControl><FormMessage/></FormItem>

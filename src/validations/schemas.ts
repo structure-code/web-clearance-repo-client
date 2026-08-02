@@ -112,22 +112,30 @@ export const createProgramSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-export const createUserSchema = z.object({
-  name: z.string().min(2, { message: "Name is required" }),
-  firstName: z.string().optional(),
-  middleName: z.string().optional(),
-  lastName: z.string().optional(),
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.union([
-    z.string().min(6, { message: "Password must be at least 6 characters" }),
-    z.literal(""),
-  ]),
-  role: z.enum(["STUDENT", "DEPARTMENT_OFFICER", "FACULTY_OFFICER", "ADMIN"]),
-  departmentId: z.string().optional(),
-  programId: z.string().optional(),
-  facultyId: z.string().optional(),
-  isActive: z.boolean().default(true),
-});
+export const createUserSchema = z
+  .object({
+    name: z.string().min(2, { message: "Name is required" }),
+    firstName: z.string().optional(),
+    middleName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z.union([
+      z.string().min(6, { message: "Password must be at least 6 characters" }),
+      z.literal(""),
+    ]),
+    role: z.enum(["STUDENT", "DEPARTMENT_OFFICER", "FACULTY_OFFICER", "ADMIN"]),
+    departmentId: z.string().optional(),
+    programId: z.string().optional(),
+    facultyId: z.string().optional(),
+    isActive: z.boolean().default(true),
+  })
+  .refine(
+    (data) => data.role !== "STUDENT" || (data.middleName?.trim().length ?? 0) >= 2,
+    {
+      message: "Middle name must be at least 2 characters",
+      path: ["middleName"],
+    },
+  );
 
 export const createAcademicSessionSchema = z.object({
   name: z
