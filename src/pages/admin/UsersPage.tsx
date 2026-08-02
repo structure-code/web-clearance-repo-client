@@ -30,6 +30,20 @@ import { usePrograms } from "@/hooks/usePrograms";
 import type { Department } from "@/types/department";
 import type { User } from "@/types";
 
+// Splits a single "full name" string into first/middle/last parts for
+// pre-filling the separate name inputs when editing a student user.
+function splitFullName(fullName?: string) {
+  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { firstName: "", middleName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], middleName: "", lastName: "" };
+  if (parts.length === 2) return { firstName: parts[0], middleName: "", lastName: parts[1] };
+  return {
+    firstName: parts[0],
+    middleName: parts.slice(1, -1).join(" "),
+    lastName: parts[parts.length - 1],
+  };
+}
+
 export default function UsersPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -45,6 +59,9 @@ export default function UsersPage() {
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       name: '',
+      firstName: '',
+      middleName: '',
+      lastName: '',
       email: '',
       password: '',
       role: 'STUDENT' as any,
@@ -56,12 +73,31 @@ export default function UsersPage() {
   });
 
   const selectedRole = form.watch('role');
+  const watchedFirstName = form.watch('firstName');
+  const watchedMiddleName = form.watch('middleName');
+  const watchedLastName = form.watch('lastName');
+
+  // Keep the underlying "name" field (used by validation + submit) in sync
+  // with the split first/middle/last name inputs whenever role is STUDENT.
+  useEffect(() => {
+    if (selectedRole === 'STUDENT') {
+      const joined = [watchedFirstName, watchedMiddleName, watchedLastName]
+        .map((part) => part?.trim())
+        .filter(Boolean)
+        .join(' ');
+      form.setValue('name', joined, { shouldValidate: false });
+    }
+  }, [selectedRole, watchedFirstName, watchedMiddleName, watchedLastName, form]);
 
   // Handle setting form values when entering Edit mode
   useEffect(() => {
     if (editingUser) {
+      const { firstName, middleName, lastName } = splitFullName(editingUser.name);
       form.reset({
         name: editingUser.name,
+        firstName,
+        middleName,
+        lastName,
         email: editingUser.email,
         password: '', // Keep blank during edits unless changing it
         role: editingUser.role as any,
@@ -73,6 +109,9 @@ export default function UsersPage() {
     } else {
       form.reset({
         name: '',
+        firstName: '',
+        middleName: '',
+        lastName: '',
         email: '',
         password: '',
         role: 'STUDENT',
@@ -123,7 +162,17 @@ export default function UsersPage() {
 
   const onSubmit = (values: any) => {
     const payload = { ...values };
-    
+
+    if (payload.role === 'STUDENT') {
+      payload.name = [payload.firstName, payload.middleName, payload.lastName]
+        .map((part: string | undefined) => part?.trim())
+        .filter(Boolean)
+        .join(' ');
+    }
+    delete payload.firstName;
+    delete payload.middleName;
+    delete payload.lastName;
+
     if (!payload.departmentId || payload.departmentId === "none") {
       delete payload.departmentId;
     }
@@ -174,9 +223,23 @@ export default function UsersPage() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="name" render={({field}) => (
-                  <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field}/></FormControl><FormMessage/></FormItem>
-                )}/>
+                {selectedRole === 'STUDENT' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <FormField control={form.control} name="firstName" render={({field}) => (
+                      <FormItem><FormLabel>First Name</FormLabel><FormControl><Input placeholder="John" {...field}/></FormControl><FormMessage/></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="middleName" render={({field}) => (
+                      <FormItem><FormLabel>Middle Name</FormLabel><FormControl><Input placeholder="Optional" {...field}/></FormControl><FormMessage/></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="lastName" render={({field}) => (
+                      <FormItem><FormLabel>Last Name</FormLabel><FormControl><Input placeholder="Doe" {...field}/></FormControl><FormMessage/></FormItem>
+                    )}/>
+                  </div>
+                ) : (
+                  <FormField control={form.control} name="name" render={({field}) => (
+                    <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input {...field}/></FormControl><FormMessage/></FormItem>
+                  )}/>
+                )}
                 <FormField control={form.control} name="email" render={({field}) => (
                   <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" {...field}/></FormControl><FormMessage/></FormItem>
                 )}/>

@@ -2,7 +2,9 @@ import { z } from "zod";
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, "Full Name must be at least 2 characters"),
+    firstName: z.string().min(2, "First name must be at least 2 characters"),
+    middleName: z.string().optional(),
+    lastName: z.string().min(2, "Last name must be at least 2 characters"),
     matricNo: z.string().min(2, "Matriculation number is required"),
     programId: z.string().min(1, "Program is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
@@ -112,6 +114,9 @@ export const createProgramSchema = z.object({
 
 export const createUserSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
+  firstName: z.string().optional(),
+  middleName: z.string().optional(),
+  lastName: z.string().optional(),
   email: z.string().email({ message: "Invalid email address" }),
   password: z.union([
     z.string().min(6, { message: "Password must be at least 6 characters" }),
