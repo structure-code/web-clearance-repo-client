@@ -34,6 +34,7 @@ import UsersPage from '../pages/admin/UsersPage';
 import DepartmentsPage from '../pages/admin/DepartmentsPage';
 import FacultiesPage from '../pages/admin/FacultiesPage';
 import ProgramsPage from '../pages/admin/ProgramsPage';
+import AcademicSessionsPage from '../pages/admin/AcademicSessionsPage';
 import ReportsPage from '../pages/admin/ReportsPage';
 import ActivityLogsPage from '../pages/admin/ActivityLogsPage';
 
@@ -82,6 +83,7 @@ export default function AppRouter() {
           <Route path="departments" element={<DepartmentsPage />} />
           <Route path="faculties" element={<FacultiesPage />} />
           <Route path="programs" element={<ProgramsPage />} />
+          <Route path="academic-sessions" element={<AcademicSessionsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="activity-logs" element={<ActivityLogsPage />} />
         </Route>

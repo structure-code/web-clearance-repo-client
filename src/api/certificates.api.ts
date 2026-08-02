@@ -2,8 +2,8 @@ import { Certificate } from '../types';
 import { apiClient } from './axios';
 import { unwrapData } from './response';
 
-export const getMyCertificate = async (): Promise<Certificate | null> => {
-  const { data } = await apiClient.get('/certificates/mine');
+export const getMyCertificate = async (academicSessionId: string): Promise<Certificate | null> => {
+  const { data } = await apiClient.get('/certificates/mine', { params: { academicSessionId } });
   return unwrapData<Certificate | null>(data);
 };
 

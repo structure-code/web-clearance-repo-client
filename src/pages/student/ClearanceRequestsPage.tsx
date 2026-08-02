@@ -57,6 +57,7 @@ export default function ClearanceRequestsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Department</TableHead>
+                <TableHead>Session</TableHead>
                 <TableHead>Date Submitted</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Last Updated</TableHead>
@@ -66,7 +67,7 @@ export default function ClearanceRequestsPage() {
             <TableBody>
               {filteredRequests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No requests found matching the filter.
                   </TableCell>
                 </TableRow>
@@ -74,6 +75,7 @@ export default function ClearanceRequestsPage() {
                 filteredRequests.map(req => (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.department?.name}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{req.academicSession?.name || '—'}</TableCell>
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell><StatusBadge status={req.status} /></TableCell>
                     <TableCell>{formatDate(req.updatedAt)}</TableCell>

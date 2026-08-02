@@ -129,6 +129,14 @@ export const createUserSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
+export const createAcademicSessionSchema = z.object({
+  name: z
+    .string()
+    .min(4, { message: "Session name is required, e.g. 2025/2026" })
+    .regex(/^\d{4}\/\d{4}$/, { message: "Use the format YYYY/YYYY, e.g. 2025/2026" }),
+  isActive: z.boolean().optional(),
+});
+
 const clearanceDocumentSchema = z.object({
   fileName: z.string(),
   fileUrl: z.string(),
@@ -137,6 +145,7 @@ const clearanceDocumentSchema = z.object({
 });
 
 export const createClearanceRequestSchema = z.object({
+  academicSessionId: z.string().min(1, { message: "Academic session is required" }),
   submissions: z
     .array(
       z.object({

@@ -138,6 +138,10 @@ export default function RequestDetailPage() {
                 <p className="text-muted-foreground">{request.student?.email || request.student?.matricNo || '—'}</p>
               </div>
               <div>
+                <p className="text-muted-foreground mb-1">Academic Session</p>
+                <p className="font-medium">{request.academicSession?.name || '—'}</p>
+              </div>
+              <div>
                 <p className="text-muted-foreground mb-1">Submitted</p>
                 <p className="font-medium">{formatDate(request.createdAt)}</p>
               </div>

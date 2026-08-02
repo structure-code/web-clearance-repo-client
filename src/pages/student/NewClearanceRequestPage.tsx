@@ -11,13 +11,15 @@ import { useUploadFile } from '../../hooks/useUploadFile';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Button } from '../../components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Form, FormField, FormItem, FormMessage } from '../../components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '../../components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Upload, X, File as FileIcon } from 'lucide-react';
 import { formatFileSize } from '../../utils/helpers';
 import { useActiveDepartments } from '@/hooks/useDepartments';
+import { useActiveAcademicSessions } from '@/hooks/useAcademicSessions';
 import type { Document } from '../../types';
 
 export default function NewClearanceRequestPage() {
@@ -31,6 +33,7 @@ export default function NewClearanceRequestPage() {
   const [uploadingDeptId, setUploadingDeptId] = useState<string | null>(null);
 
   const { data: departments = [] } = useActiveDepartments();
+  const { data: academicSessions = [] } = useActiveAcademicSessions();
 
   const missingRequiredDepts = departments.filter(
     dept => dept.requiresDocument && (documentsByDept[dept.id] || []).length === 0,
@@ -39,9 +42,19 @@ export default function NewClearanceRequestPage() {
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
     defaultValues: {
+      academicSessionId: '',
       submissions: [],
     },
   });
+
+  // Auto-select the academic session when only one is currently active.
+  React.useEffect(() => {
+    if (academicSessions.length === 1 && !form.getValues('academicSessionId')) {
+      form.setValue('academicSessionId', academicSessions[0].id, { shouldValidate: true });
+    }
+  }, [academicSessions, form]);
+
+  const selectedSessionId = form.watch('academicSessionId');
 
   const handleFileUpload = async (deptId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,13 +84,13 @@ export default function NewClearanceRequestPage() {
     });
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (values: { academicSessionId: string }) => {
     const submissions = Object.entries(documentsByDept)
       .filter(([, docs]) => docs.length > 0)
       .map(([departmentId, documents]) => ({ departmentId, documents }));
 
     try {
-      await createReq.mutateAsync({ submissions });
+      await createReq.mutateAsync({ academicSessionId: values.academicSessionId, submissions });
       toast.success('Clearance requests submitted successfully');
       navigate('/student/requests');
     } catch (err: any) {
@@ -96,6 +109,34 @@ export default function NewClearanceRequestPage() {
         <CardContent className="p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="academicSessionId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Academic Session</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select the academic session" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {academicSessions.map(session => (
+                          <SelectItem key={session.id} value={session.id}>{session.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {academicSessions.length === 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        No active academic session is available yet. Please check back later.
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {Array.isArray(departments) && departments.length > 0 ? (
                 <div className="space-y-4">
                   {departments.map(dept => {
@@ -183,7 +224,15 @@ export default function NewClearanceRequestPage() {
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
-                <Button type="submit" disabled={createReq.isPending || departments.length === 0 || missingRequiredDepts.length > 0}>
+                <Button
+                  type="submit"
+                  disabled={
+                    createReq.isPending ||
+                    departments.length === 0 ||
+                    missingRequiredDepts.length > 0 ||
+                    !selectedSessionId
+                  }
+                >
                   {createReq.isPending ? 'Submitting...' : 'Submit Clearance Requests'}
                 </Button>
               </div>

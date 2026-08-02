@@ -31,6 +31,7 @@ export default function ClearanceHistoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Department</TableHead>
+                <TableHead>Session</TableHead>
                 <TableHead>Date Submitted</TableHead>
                 <TableHead>Date Reviewed</TableHead>
                 <TableHead>Status</TableHead>
@@ -40,7 +41,7 @@ export default function ClearanceHistoryPage() {
             <TableBody>
               {historyRequests.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No history found.
                   </TableCell>
                 </TableRow>
@@ -48,6 +49,7 @@ export default function ClearanceHistoryPage() {
                 historyRequests.map(req => (
                   <TableRow key={req.id}>
                     <TableCell className="font-medium">{req.department?.name}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{req.academicSession?.name || '—'}</TableCell>
                     <TableCell>{formatDate(req.createdAt)}</TableCell>
                     <TableCell>{formatDate(req.updatedAt)}</TableCell>
                     <TableCell><StatusBadge status={req.status} /></TableCell>

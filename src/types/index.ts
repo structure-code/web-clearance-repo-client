@@ -54,6 +54,8 @@ export interface ClearanceRequest {
   department?: Department;
   facultyId?: string;
   faculty?: Faculty;
+  academicSessionId?: string;
+  academicSession?: AcademicSession;
   status: ClearanceStatus;
   documents: Document[];
   remarks?: string;
@@ -97,6 +99,24 @@ export interface UpdateFacultyDto {
 
 export interface AssignFacultyOfficerDto {
   userId: string;
+}
+
+export interface AcademicSession {
+  id: string;
+  name: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateAcademicSessionDto {
+  name: string;
+  isActive?: boolean;
+}
+
+export interface UpdateAcademicSessionDto {
+  name?: string;
+  isActive?: boolean;
 }
 
 export interface Program {
@@ -167,6 +187,7 @@ export interface DepartmentSubmissionDto {
 }
 
 export interface CreateClearanceRequestDto {
+  academicSessionId: string;
   submissions: DepartmentSubmissionDto[];
 }
 

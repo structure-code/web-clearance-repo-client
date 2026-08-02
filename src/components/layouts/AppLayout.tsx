@@ -19,6 +19,7 @@ import {
   Bell,
   Activity,
   Award,
+  CalendarRange,
 } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -76,6 +77,7 @@ export const AppLayout = () => {
     { to: '/admin/departments', icon: Building2, label: 'Departments' },
     { to: '/admin/faculties', icon: Landmark, label: 'Faculties' },
     { to: '/admin/programs', icon: GraduationCap, label: 'Programs' },
+    { to: '/admin/academic-sessions', icon: CalendarRange, label: 'Academic Sessions' },
     { to: '/admin/reports', icon: FileText, label: 'Reports' },
     { to: '/admin/activity-logs', icon: Activity, label: 'Activity Logs' },
     { to: '/profile', icon: UserIcon, label: 'Profile' },

@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { getMyCertificate, verifyCertificate } from '../api/certificates.api';
 
-export const useMyCertificate = () => {
+export const useMyCertificate = (academicSessionId: string) => {
   return useQuery({
-    queryKey: ['certificates', 'mine'],
-    queryFn: getMyCertificate,
+    queryKey: ['certificates', 'mine', academicSessionId],
+    queryFn: () => getMyCertificate(academicSessionId),
+    enabled: !!academicSessionId,
   });
 };
 
