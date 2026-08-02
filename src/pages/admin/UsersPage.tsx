@@ -21,6 +21,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 // Note: Ensure your api file exports an updateUser function
 import { createUser, deleteUser, updateUser } from '../../api/users.api';
 import { createUserSchema } from '../../validations/schemas';
+import { splitFullName } from '../../utils/helpers';
 
 import { useUsers } from "@/hooks/useUsers";
 import { useDepartments } from "@/hooks/useDepartments";
@@ -29,20 +30,6 @@ import { usePrograms } from "@/hooks/usePrograms";
 
 import type { Department } from "@/types/department";
 import type { User } from "@/types";
-
-// Splits a single "full name" string into first/middle/last parts for
-// pre-filling the separate name inputs when editing a student user.
-function splitFullName(fullName?: string) {
-  const parts = (fullName || "").trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return { firstName: "", middleName: "", lastName: "" };
-  if (parts.length === 1) return { firstName: parts[0], middleName: "", lastName: "" };
-  if (parts.length === 2) return { firstName: parts[0], middleName: "", lastName: parts[1] };
-  return {
-    firstName: parts[0],
-    middleName: parts.slice(1, -1).join(" "),
-    lastName: parts[parts.length - 1],
-  };
-}
 
 export default function UsersPage() {
   const [isOpen, setIsOpen] = useState(false);

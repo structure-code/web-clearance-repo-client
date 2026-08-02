@@ -28,9 +28,12 @@ import { changePassword, updateProfile } from "../api/auth.api";
 import {
   changePasswordSchema,
   profileSchema,
+  studentProfileSchema,
   type ChangePasswordInput,
   type ProfileInput,
+  type StudentProfileInput,
 } from "../validations/schemas";
+import { splitFullName } from "../utils/helpers";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuth();
@@ -41,12 +44,18 @@ export default function ProfilePage() {
   const [isSavingSignature, setIsSavingSignature] = useState(false);
 
   const canApproveClearances = user?.role === "DEPARTMENT_OFFICER";
+  const isStudent = user?.role === "STUDENT";
 
   const profileForm = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: user?.name ?? "",
     },
+  });
+
+  const studentProfileForm = useForm<StudentProfileInput>({
+    resolver: zodResolver(studentProfileSchema),
+    defaultValues: splitFullName(user?.name),
   });
 
   const passwordForm = useForm<ChangePasswordInput>({
@@ -62,13 +71,28 @@ export default function ProfilePage() {
     profileForm.reset({
       name: user?.name ?? "",
     });
-  }, [profileForm, user?.name]);
+    studentProfileForm.reset(splitFullName(user?.name));
+  }, [profileForm, studentProfileForm, user?.name]);
 
   const handleProfileSubmit = async (values: ProfileInput) => {
     try {
       const updatedUser = await updateProfile({
         name: values.name,
       });
+      setUser(updatedUser);
+      toast.success("Profile updated successfully.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile.");
+    }
+  };
+
+  const handleStudentProfileSubmit = async (values: StudentProfileInput) => {
+    try {
+      const name = [values.firstName, values.middleName, values.lastName]
+        .map((part) => part?.trim())
+        .filter(Boolean)
+        .join(" ");
+      const updatedUser = await updateProfile({ name });
       setUser(updatedUser);
       toast.success("Profile updated successfully.");
     } catch (error: any) {
@@ -150,35 +174,95 @@ export default function ProfilePage() {
             <CardTitle>Update Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            <Form {...profileForm}>
-              <form
-                onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={profileForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  disabled={profileForm.formState.isSubmitting}
+            {isStudent ? (
+              <Form {...studentProfileForm}>
+                <form
+                  onSubmit={studentProfileForm.handleSubmit(handleStudentProfileSubmit)}
+                  className="space-y-4"
                 >
-                  {profileForm.formState.isSubmitting
-                    ? "Saving..."
-                    : "Save Changes"}
-                </Button>
-              </form>
-            </Form>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <FormField
+                      control={studentProfileForm.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="John" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={studentProfileForm.control}
+                      name="middleName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Middle Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Michael" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={studentProfileForm.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Last Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={studentProfileForm.formState.isSubmitting}
+                  >
+                    {studentProfileForm.formState.isSubmitting
+                      ? "Saving..."
+                      : "Save Changes"}
+                  </Button>
+                </form>
+              </Form>
+            ) : (
+              <Form {...profileForm}>
+                <form
+                  onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={profileForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={profileForm.formState.isSubmitting}
+                  >
+                    {profileForm.formState.isSubmitting
+                      ? "Saving..."
+                      : "Save Changes"}
+                  </Button>
+                </form>
+              </Form>
+            )}
           </CardContent>
         </Card>
 

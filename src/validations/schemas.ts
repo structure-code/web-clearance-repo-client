@@ -33,6 +33,12 @@ export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
 });
 
+export const studentProfileSchema = z.object({
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
+  middleName: z.string().min(2, { message: "Middle name must be at least 2 characters" }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters" }),
+});
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z
@@ -173,4 +179,5 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type StudentLoginInput = z.infer<typeof studentLoginSchema>;
 export type AdminLoginInput = z.infer<typeof adminLoginSchema>;
 export type ProfileInput = z.infer<typeof profileSchema>;
+export type StudentProfileInput = z.infer<typeof studentProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
