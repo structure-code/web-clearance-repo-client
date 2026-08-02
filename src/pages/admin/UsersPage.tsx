@@ -24,6 +24,8 @@ import { createUserSchema } from '../../validations/schemas';
 
 import { useUsers } from "@/hooks/useUsers";
 import { useDepartments } from "@/hooks/useDepartments";
+import { useFaculties } from "@/hooks/useFaculties";
+import { usePrograms } from "@/hooks/usePrograms";
 
 import type { Department } from "@/types/department";
 import type { User } from "@/types";
@@ -36,6 +38,8 @@ export default function UsersPage() {
 
   const { data: users = [], isLoading } = useUsers();
   const { data: departments = [] } = useDepartments();
+  const { data: faculties = [] } = useFaculties();
+  const { data: programs = [] } = usePrograms();
 
   const form = useForm({
     resolver: zodResolver(createUserSchema),
@@ -45,9 +49,13 @@ export default function UsersPage() {
       password: '',
       role: 'STUDENT' as any,
       departmentId: 'none',
+      programId: 'none',
+      facultyId: 'none',
       isActive: true,
     },
   });
+
+  const selectedRole = form.watch('role');
 
   // Handle setting form values when entering Edit mode
   useEffect(() => {
@@ -58,6 +66,8 @@ export default function UsersPage() {
         password: '', // Keep blank during edits unless changing it
         role: editingUser.role as any,
         departmentId: editingUser.departmentId || 'none',
+        programId: editingUser.programId || 'none',
+        facultyId: editingUser.facultyId || 'none',
         isActive: editingUser.isActive,
       });
     } else {
@@ -67,6 +77,8 @@ export default function UsersPage() {
         password: '',
         role: 'STUDENT',
         departmentId: 'none',
+        programId: 'none',
+        facultyId: 'none',
         isActive: true,
       });
     }
@@ -114,6 +126,12 @@ export default function UsersPage() {
     
     if (!payload.departmentId || payload.departmentId === "none") {
       delete payload.departmentId;
+    }
+    if (!payload.programId || payload.programId === "none") {
+      delete payload.programId;
+    }
+    if (!payload.facultyId || payload.facultyId === "none") {
+      delete payload.facultyId;
     }
 
     if (editingUser) {
@@ -177,27 +195,64 @@ export default function UsersPage() {
                       <SelectContent>
                         <SelectItem value="STUDENT">Student</SelectItem>
                         <SelectItem value="DEPARTMENT_OFFICER">Department Officer</SelectItem>
+                        <SelectItem value="FACULTY_OFFICER">Faculty Officer</SelectItem>
                         <SelectItem value="ADMIN">Admin</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage/>
                   </FormItem>
                 )}/>
-                <FormField control={form.control} name="departmentId" render={({field}) => (
-                  <FormItem>
-                    <FormLabel>Department (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="None" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {Array.isArray(departments) && departments.map((d: Department) => (
-                          <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage/>
-                  </FormItem>
-                )}/>
+                {selectedRole === 'DEPARTMENT_OFFICER' && (
+                  <FormField control={form.control} name="departmentId" render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Department</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select department" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {Array.isArray(departments) && departments.map((d: Department) => (
+                            <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage/>
+                    </FormItem>
+                  )}/>
+                )}
+                {selectedRole === 'STUDENT' && (
+                  <FormField control={form.control} name="programId" render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Program</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select program" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {Array.isArray(programs) && programs.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage/>
+                    </FormItem>
+                  )}/>
+                )}
+                {(selectedRole === 'FACULTY_OFFICER' || selectedRole === 'STUDENT') && (
+                  <FormField control={form.control} name="facultyId" render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Faculty (Optional)</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="None" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {Array.isArray(faculties) && faculties.map((f) => (
+                            <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage/>
+                    </FormItem>
+                  )}/>
+                )}
                 {editingUser && (
                   <FormField control={form.control} name="isActive" render={({field}) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">

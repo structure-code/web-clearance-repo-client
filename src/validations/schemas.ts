@@ -4,7 +4,7 @@ export const registerSchema = z
   .object({
     name: z.string().min(2, "Full Name must be at least 2 characters"),
     matricNo: z.string().min(2, "Matriculation number is required"),
-    departmentId: z.string().min(1, "Department is required"),
+    programId: z.string().min(1, "Program is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
@@ -88,8 +88,10 @@ export const createUserSchema = z.object({
     z.string().min(6, { message: "Password must be at least 6 characters" }),
     z.literal(""),
   ]),
-  role: z.enum(["STUDENT", "DEPARTMENT_OFFICER", "ADMIN"]),
+  role: z.enum(["STUDENT", "DEPARTMENT_OFFICER", "FACULTY_OFFICER", "ADMIN"]),
   departmentId: z.string().optional(),
+  programId: z.string().optional(),
+  facultyId: z.string().optional(),
   isActive: z.boolean().default(true),
 });
 

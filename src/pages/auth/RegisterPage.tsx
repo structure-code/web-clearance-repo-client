@@ -25,13 +25,13 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { register } from "../../api/auth.api";
-import { useActiveDepartments } from "../../hooks/useDepartments";
+import { useActivePrograms } from "../../hooks/usePrograms";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
-  const { data: departments = [] } = useActiveDepartments();
+  const { data: programs = [] } = useActivePrograms();
 
   // States for hiding/showing password text
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +43,7 @@ export default function RegisterPage() {
     defaultValues: {
       name: "",
       matricNo: "",
-      departmentId: "",
+      programId: "",
       password: "",
       confirmPassword: "",
     },
@@ -130,22 +130,22 @@ export default function RegisterPage() {
             )}
           />
 
-          {/* Department Field */}
+          {/* Program Field */}
           <FormField
             control={form.control}
-            name="departmentId"
+            name="programId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Department</FormLabel>
+                <FormLabel>Program</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your department" />
+                      <SelectValue placeholder="Select your program" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                    {programs.map((program) => (
+                      <SelectItem key={program.id} value={program.id}>{program.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

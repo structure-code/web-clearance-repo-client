@@ -9,6 +9,7 @@ export interface User {
   name?: string;
   role: UserRole;
   departmentId?: string;
+  programId?: string;
   facultyId?: string;
   isActive: boolean;
   signatureUrl?: string;
@@ -21,6 +22,8 @@ export interface CreateUserDto {
   name?: string;
   role: UserRole;
   departmentId?: string;
+  programId?: string;
+  facultyId?: string;
 }
 
 export interface UpdateUserDto {
@@ -29,6 +32,8 @@ export interface UpdateUserDto {
   name?: string;
   role?: UserRole;
   departmentId?: string;
+  programId?: string;
+  facultyId?: string;
   isActive?: boolean;
 }
 
@@ -45,8 +50,10 @@ export interface ClearanceRequest {
   id: string;
   studentId: string;
   student?: User;
-  departmentId: string;
+  departmentId?: string;
   department?: Department;
+  facultyId?: string;
+  faculty?: Faculty;
   status: ClearanceStatus;
   documents: Document[];
   remarks?: string;
@@ -58,6 +65,63 @@ export interface ClearanceRequest {
   clearedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Faculty {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  users?: User[];
+  programs?: Program[];
+}
+
+export interface CreateFacultyDto {
+  name: string;
+  code: string;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
+}
+
+export interface UpdateFacultyDto {
+  name?: string;
+  code?: string;
+  isActive?: boolean;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
+}
+
+export interface AssignFacultyOfficerDto {
+  userId: string;
+}
+
+export interface Program {
+  id: string;
+  name: string;
+  code: string;
+  isActive: boolean;
+  facultyId: string;
+  faculty?: Faculty;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateProgramDto {
+  name: string;
+  code: string;
+  facultyId: string;
+  isActive?: boolean;
+}
+
+export interface UpdateProgramDto {
+  name?: string;
+  code?: string;
+  facultyId?: string;
+  isActive?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -80,7 +144,7 @@ export interface RegisterDto {
   matricNo: string;
   password: string;
   name?: string;
-  departmentId: string;
+  programId: string;
 }
 
 export interface VerifyEmailDto {
@@ -97,7 +161,8 @@ export interface ResetPasswordDto {
 }
 
 export interface DepartmentSubmissionDto {
-  departmentId: string;
+  departmentId?: string;
+  facultyId?: string;
   documents?: Document[];
 }
 
@@ -108,6 +173,7 @@ export interface CreateClearanceRequestDto {
 export interface UpdateProfileDto {
   name?: string;
   departmentId?: string;
+  programId?: string;
   signatureUrl?: string;
 }
 
