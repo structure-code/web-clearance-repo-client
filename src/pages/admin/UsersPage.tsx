@@ -217,7 +217,7 @@ export default function UsersPage() {
               <Plus className="mr-2 h-4 w-4" /> Add User
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-106.25">
+          <DialogContent className="sm:max-w-xl">
             <DialogHeader>
               <DialogTitle>{editingUser ? 'Edit User' : 'Create New User'}</DialogTitle>
             </DialogHeader>
