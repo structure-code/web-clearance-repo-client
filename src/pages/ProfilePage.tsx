@@ -40,7 +40,7 @@ export default function ProfilePage() {
   const uploadFile = useUploadFile();
   const [isSavingSignature, setIsSavingSignature] = useState(false);
 
-  const canApproveClearances = user?.role === "DEPARTMENT_OFFICER" || user?.role === "ADMIN";
+  const canApproveClearances = user?.role === "DEPARTMENT_OFFICER";
 
   const profileForm = useForm<ProfileInput>({
     resolver: zodResolver(profileSchema),
