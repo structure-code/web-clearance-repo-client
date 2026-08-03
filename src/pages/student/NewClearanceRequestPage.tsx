@@ -19,40 +19,57 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Upload, X, File as FileIcon } from 'lucide-react';
 import { formatFileSize, formatAcademicSession } from '../../utils/helpers';
 import { useActiveDepartments } from '@/hooks/useDepartments';
+import { useActiveFaculties } from '@/hooks/useFaculties';
 import { useActiveAcademicSessions } from '@/hooks/useAcademicSessions';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { Document } from '../../types';
-import type { Department } from '../../types/department';
+
+// A clearance request is opened against every active department, plus the
+// student's own faculty unit (a student belongs to exactly one faculty).
+// Both are treated uniformly here so they can be grouped together when they
+// ask for the same document.
+interface Unit {
+  kind: 'department' | 'faculty';
+  id: string;
+  name: string;
+  requiresDocument?: boolean;
+  requiredDocumentDescription?: string;
+}
+
+// A unique key per unit, used both for local document state and for the
+// keys the backend expects in each submission (departmentId / facultyId).
+const unitKey = (unit: Unit) => `${unit.kind}:${unit.id}`;
 
 interface DocGroup {
   key: string;
   description?: string;
   requiresDocument: boolean;
-  departments: Department[];
+  units: Unit[];
 }
 
-// Groups departments that ask for the exact same document (matched on the
-// normalized requiredDocumentDescription text) so the student only has to
-// upload it once, instead of re-uploading the same file per department.
-// Departments with no description, or whose description doesn't match any
-// other department's, stay in their own single-department group.
-function groupDepartmentsByDocument(departments: Department[]): DocGroup[] {
+// Groups units (departments + the student's faculty) that ask for the exact
+// same document (matched on the normalized requiredDocumentDescription text)
+// so the student only has to upload it once, instead of re-uploading the
+// same file per unit. Units with no description, or whose description
+// doesn't match any other unit's, stay in their own single-unit group.
+function groupUnitsByDocument(units: Unit[]): DocGroup[] {
   const map = new Map<string, DocGroup>();
 
-  for (const dept of departments) {
-    const normalizedDesc = dept.requiresDocument
-      ? dept.requiredDocumentDescription?.trim().toLowerCase()
+  for (const unit of units) {
+    const normalizedDesc = unit.requiresDocument
+      ? unit.requiredDocumentDescription?.trim().toLowerCase()
       : undefined;
-    const key = normalizedDesc ? `doc:${normalizedDesc}` : `dept:${dept.id}`;
+    const key = normalizedDesc ? `doc:${normalizedDesc}` : `unit:${unitKey(unit)}`;
 
     const existing = map.get(key);
     if (existing) {
-      existing.departments.push(dept);
+      existing.units.push(unit);
     } else {
       map.set(key, {
         key,
-        description: dept.requiredDocumentDescription?.trim(),
-        requiresDocument: !!dept.requiresDocument,
-        departments: [dept],
+        description: unit.requiredDocumentDescription?.trim(),
+        requiresDocument: !!unit.requiresDocument,
+        units: [unit],
       });
     }
   }
@@ -64,21 +81,52 @@ export default function NewClearanceRequestPage() {
   const navigate = useNavigate();
   const createReq = useCreateClearanceRequest();
   const uploadFile = useUploadFile();
-  // Documents keyed by departmentId. Grouped departments (same required
-  // document) are kept in sync so the same uploaded document is applied to
-  // every department in the group without re-uploading the file.
-  const [documentsByDept, setDocumentsByDept] = useState<Record<string, Document[]>>({});
+  // Documents keyed by unit key (`department:<id>` or `faculty:<id>`).
+  // Grouped units (same required document) are kept in sync so the same
+  // uploaded document is applied to every unit in the group without
+  // re-uploading the file.
+  const [documentsByUnit, setDocumentsByUnit] = useState<Record<string, Document[]>>({});
   const [uploadingGroupKey, setUploadingGroupKey] = useState<string | null>(null);
 
   const { data: departments = [] } = useActiveDepartments();
+  const { data: faculties = [] } = useActiveFaculties();
   const { data: academicSessions = [] } = useActiveAcademicSessions();
+  const { data: currentUser } = useCurrentUser();
 
-  const groups = useMemo(() => groupDepartmentsByDocument(departments), [departments]);
+  // The student's own faculty unit — every clearance request also includes
+  // this alongside the active departments, matching how the backend builds
+  // requests (one per active department, plus one for the student's faculty).
+  const studentFaculty = useMemo(
+    () => faculties.find(f => f.id === currentUser?.facultyId),
+    [faculties, currentUser],
+  );
+
+  const units: Unit[] = useMemo(() => {
+    const departmentUnits: Unit[] = departments.map(d => ({
+      kind: 'department',
+      id: d.id,
+      name: d.name,
+      requiresDocument: d.requiresDocument,
+      requiredDocumentDescription: d.requiredDocumentDescription,
+    }));
+    const facultyUnit: Unit[] = studentFaculty
+      ? [{
+          kind: 'faculty',
+          id: studentFaculty.id,
+          name: studentFaculty.name,
+          requiresDocument: studentFaculty.requiresDocument,
+          requiredDocumentDescription: studentFaculty.requiredDocumentDescription,
+        }]
+      : [];
+    return [...departmentUnits, ...facultyUnit];
+  }, [departments, studentFaculty]);
+
+  const groups = useMemo(() => groupUnitsByDocument(units), [units]);
 
   const missingRequiredGroups = groups.filter(
-    group => group.requiresDocument && (documentsByDept[group.departments[0].id] || []).length === 0,
+    group => group.requiresDocument && (documentsByUnit[unitKey(group.units[0])] || []).length === 0,
   );
-  const missingRequiredDepts = missingRequiredGroups.flatMap(group => group.departments);
+  const missingRequiredUnits = missingRequiredGroups.flatMap(group => group.units);
 
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
@@ -98,15 +146,20 @@ export default function NewClearanceRequestPage() {
   const selectedSessionId = form.watch('academicSessionId');
 
   // Keep the form's `submissions` field (used by zod validation) in sync with
-  // the documentsByDept state. Without this, `submissions` stays at its
+  // the documentsByUnit state. Without this, `submissions` stays at its
   // default value of [] forever, so the "At least one department is
   // required" validation error fires even after documents are attached.
   React.useEffect(() => {
-    const submissions = Object.entries(documentsByDept)
+    const submissions = Object.entries(documentsByUnit)
       .filter(([, docs]) => docs.length > 0)
-      .map(([departmentId, documents]) => ({ departmentId, documents }));
+      .map(([key, documents]) => {
+        const [kind, id] = key.split(':');
+        return kind === 'faculty'
+          ? { facultyId: id, documents }
+          : { departmentId: id, documents };
+      });
     form.setValue('submissions', submissions, { shouldValidate: true });
-  }, [documentsByDept, form]);
+  }, [documentsByUnit, form]);
 
   const handleFileUpload = async (group: DocGroup, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,18 +168,20 @@ export default function NewClearanceRequestPage() {
     setUploadingGroupKey(group.key);
     try {
       // Upload to the backend exactly once per group, then attach the same
-      // document to every department that shares this requirement.
+      // document to every unit (department or faculty) that shares this
+      // requirement.
       const res = await uploadFile.mutateAsync(file);
-      setDocumentsByDept(prev => {
+      setDocumentsByUnit(prev => {
         const next = { ...prev };
-        for (const dept of group.departments) {
-          next[dept.id] = [...(prev[dept.id] || []), res];
+        for (const unit of group.units) {
+          const key = unitKey(unit);
+          next[key] = [...(prev[key] || []), res];
         }
         return next;
       });
       toast.success(
-        group.departments.length > 1
-          ? `File uploaded and applied to ${group.departments.length} departments`
+        group.units.length > 1
+          ? `File uploaded and applied to ${group.units.length} units`
           : 'File uploaded successfully',
       );
     } catch (err: any) {
@@ -138,21 +193,27 @@ export default function NewClearanceRequestPage() {
   };
 
   const removeDoc = (group: DocGroup, index: number) => {
-    setDocumentsByDept(prev => {
+    setDocumentsByUnit(prev => {
       const next = { ...prev };
-      for (const dept of group.departments) {
-        const docs = [...(prev[dept.id] || [])];
+      for (const unit of group.units) {
+        const key = unitKey(unit);
+        const docs = [...(prev[key] || [])];
         docs.splice(index, 1);
-        next[dept.id] = docs;
+        next[key] = docs;
       }
       return next;
     });
   };
 
   const onSubmit = async (values: { academicSessionId: string }) => {
-    const submissions = Object.entries(documentsByDept)
+    const submissions = Object.entries(documentsByUnit)
       .filter(([, docs]) => docs.length > 0)
-      .map(([departmentId, documents]) => ({ departmentId, documents }));
+      .map(([key, documents]) => {
+        const [kind, id] = key.split(':');
+        return kind === 'faculty'
+          ? { facultyId: id, documents }
+          : { departmentId: id, documents };
+      });
 
     try {
       await createReq.mutateAsync({ academicSessionId: values.academicSessionId, submissions });
@@ -167,7 +228,7 @@ export default function NewClearanceRequestPage() {
     <div className="space-y-6 max-w-2xl">
       <PageHeader
         title="New Clearance Request"
-        description="Submitting will open a clearance request with every active department. Attach a document below for any department that needs one."
+        description="Submitting will open a clearance request with every active department and your faculty unit. Attach a document below for any unit that needs one."
       />
 
       <Card>
@@ -202,29 +263,31 @@ export default function NewClearanceRequestPage() {
                 )}
               />
 
-              {Array.isArray(departments) && departments.length > 0 ? (
+              {Array.isArray(units) && units.length > 0 ? (
                 <div className="space-y-4">
                   {groups.map(group => {
-                    const docs = documentsByDept[group.departments[0].id] || [];
-                    const isShared = group.departments.length > 1;
+                    const docs = documentsByUnit[unitKey(group.units[0])] || [];
+                    const isShared = group.units.length > 1;
+                    const hasFaculty = group.units.some(u => u.kind === 'faculty');
                     return (
                       <Card key={group.key} className="border-dashed">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm font-medium flex flex-wrap items-center gap-2">
-                            {group.departments.map(d => d.name).join(' + ')}
+                            {group.units.map(u => u.name).join(' + ')}
                             {group.requiresDocument && <Badge variant="secondary">Document Required</Badge>}
                             {isShared && <Badge variant="outline">Shared document</Badge>}
+                            {hasFaculty && <Badge variant="outline">Faculty unit</Badge>}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <Label className="text-xs text-muted-foreground">
                             {group.requiresDocument
-                              ? group.description || 'A supporting document is required for these departments.'
+                              ? group.description || 'A supporting document is required for these units.'
                               : 'Supporting document (optional)'}
                           </Label>
                           {isShared && (
                             <p className="text-xs text-muted-foreground">
-                              Upload once — this document will be attached to all {group.departments.length} departments listed above.
+                              Upload once — this document will be attached to all {group.units.length} units listed above.
                             </p>
                           )}
                           <div className="flex items-center gap-3">
@@ -275,7 +338,13 @@ export default function NewClearanceRequestPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No active departments are accepting clearance requests right now.</p>
+                <p className="text-sm text-muted-foreground">No active departments or faculty unit are accepting clearance requests right now.</p>
+              )}
+
+              {currentUser && !currentUser.facultyId && (
+                <p className="text-xs text-destructive">
+                  Your account isn't linked to a faculty yet, so your faculty unit won't be included in this request. Contact an administrator if this looks wrong.
+                </p>
               )}
 
               <FormField
@@ -288,9 +357,9 @@ export default function NewClearanceRequestPage() {
                 )}
               />
 
-              {missingRequiredDepts.length > 0 && (
+              {missingRequiredUnits.length > 0 && (
                 <p className="text-sm text-destructive">
-                  Please attach a document for: {missingRequiredDepts.map(d => d.name).join(', ')}.
+                  Please attach a document for: {missingRequiredUnits.map(u => u.name).join(', ')}.
                 </p>
               )}
 
@@ -300,8 +369,8 @@ export default function NewClearanceRequestPage() {
                   type="submit"
                   disabled={
                     createReq.isPending ||
-                    departments.length === 0 ||
-                    missingRequiredDepts.length > 0 ||
+                    units.length === 0 ||
+                    missingRequiredUnits.length > 0 ||
                     !selectedSessionId
                   }
                 >

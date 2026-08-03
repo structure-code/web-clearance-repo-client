@@ -164,11 +164,14 @@ export const createClearanceRequestSchema = z.object({
   submissions: z
     .array(
       z.object({
-        departmentId: z.string().min(1),
+        departmentId: z.string().min(1).optional(),
+        facultyId: z.string().min(1).optional(),
         documents: z.array(clearanceDocumentSchema).optional(),
+      }).refine(sub => !!sub.departmentId || !!sub.facultyId, {
+        message: 'Each submission must have a departmentId or facultyId',
       }),
     )
-    .min(1, { message: "At least one department is required" }),
+    .min(1, { message: "At least one department or faculty unit is required" }),
 });
 
 export const rejectSchema = z.object({
