@@ -162,13 +162,13 @@ export default function DepartmentsPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium leading-none">Department Name</label>
-                <Input id="name" placeholder="e.g. Computer Science" {...form.register('name')} />
+                <Input id="name" placeholder="e.g. University Library" {...form.register('name')} />
                 {errors.name && <p className="text-sm font-medium text-destructive">{errors.name.message as string}</p>}
               </div>
 
               <div className="space-y-2">
                 <label htmlFor="code" className="text-sm font-medium leading-none">Code</label>
-                <Input id="code" placeholder="e.g. CSC" {...form.register('code')} />
+                <Input id="code" placeholder="e.g. LIB" {...form.register('code')} />
                 {errors.code && <p className="text-sm font-medium text-destructive">{errors.code.message as string}</p>}
               </div>
               
