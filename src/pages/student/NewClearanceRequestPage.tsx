@@ -56,6 +56,17 @@ export default function NewClearanceRequestPage() {
 
   const selectedSessionId = form.watch('academicSessionId');
 
+  // Keep the form's `submissions` field (used by zod validation) in sync with
+  // the documentsByDept state. Without this, `submissions` stays at its
+  // default value of [] forever, so the "At least one department is
+  // required" validation error fires even after documents are attached.
+  React.useEffect(() => {
+    const submissions = Object.entries(documentsByDept)
+      .filter(([, docs]) => docs.length > 0)
+      .map(([departmentId, documents]) => ({ departmentId, documents }));
+    form.setValue('submissions', submissions, { shouldValidate: true });
+  }, [documentsByDept, form]);
+
   const handleFileUpload = async (deptId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
