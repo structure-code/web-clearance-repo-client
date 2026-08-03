@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
@@ -21,23 +21,64 @@ import { formatFileSize, formatAcademicSession } from '../../utils/helpers';
 import { useActiveDepartments } from '@/hooks/useDepartments';
 import { useActiveAcademicSessions } from '@/hooks/useAcademicSessions';
 import type { Document } from '../../types';
+import type { Department } from '../../types/department';
+
+interface DocGroup {
+  key: string;
+  description?: string;
+  requiresDocument: boolean;
+  departments: Department[];
+}
+
+// Groups departments that ask for the exact same document (matched on the
+// normalized requiredDocumentDescription text) so the student only has to
+// upload it once, instead of re-uploading the same file per department.
+// Departments with no description, or whose description doesn't match any
+// other department's, stay in their own single-department group.
+function groupDepartmentsByDocument(departments: Department[]): DocGroup[] {
+  const map = new Map<string, DocGroup>();
+
+  for (const dept of departments) {
+    const normalizedDesc = dept.requiresDocument
+      ? dept.requiredDocumentDescription?.trim().toLowerCase()
+      : undefined;
+    const key = normalizedDesc ? `doc:${normalizedDesc}` : `dept:${dept.id}`;
+
+    const existing = map.get(key);
+    if (existing) {
+      existing.departments.push(dept);
+    } else {
+      map.set(key, {
+        key,
+        description: dept.requiredDocumentDescription?.trim(),
+        requiresDocument: !!dept.requiresDocument,
+        departments: [dept],
+      });
+    }
+  }
+
+  return Array.from(map.values());
+}
 
 export default function NewClearanceRequestPage() {
   const navigate = useNavigate();
   const createReq = useCreateClearanceRequest();
   const uploadFile = useUploadFile();
-  // Documents keyed by departmentId. A clearance request is opened with every
-  // active department at once; attaching a document here is optional and only
-  // applies to that specific department's request.
+  // Documents keyed by departmentId. Grouped departments (same required
+  // document) are kept in sync so the same uploaded document is applied to
+  // every department in the group without re-uploading the file.
   const [documentsByDept, setDocumentsByDept] = useState<Record<string, Document[]>>({});
-  const [uploadingDeptId, setUploadingDeptId] = useState<string | null>(null);
+  const [uploadingGroupKey, setUploadingGroupKey] = useState<string | null>(null);
 
   const { data: departments = [] } = useActiveDepartments();
   const { data: academicSessions = [] } = useActiveAcademicSessions();
 
-  const missingRequiredDepts = departments.filter(
-    dept => dept.requiresDocument && (documentsByDept[dept.id] || []).length === 0,
+  const groups = useMemo(() => groupDepartmentsByDocument(departments), [departments]);
+
+  const missingRequiredGroups = groups.filter(
+    group => group.requiresDocument && (documentsByDept[group.departments[0].id] || []).length === 0,
   );
+  const missingRequiredDepts = missingRequiredGroups.flatMap(group => group.departments);
 
   const form = useForm({
     resolver: zodResolver(createClearanceRequestSchema),
@@ -67,31 +108,44 @@ export default function NewClearanceRequestPage() {
     form.setValue('submissions', submissions, { shouldValidate: true });
   }, [documentsByDept, form]);
 
-  const handleFileUpload = async (deptId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (group: DocGroup, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingDeptId(deptId);
+    setUploadingGroupKey(group.key);
     try {
+      // Upload to the backend exactly once per group, then attach the same
+      // document to every department that shares this requirement.
       const res = await uploadFile.mutateAsync(file);
-      setDocumentsByDept(prev => ({
-        ...prev,
-        [deptId]: [...(prev[deptId] || []), res],
-      }));
-      toast.success('File uploaded successfully');
+      setDocumentsByDept(prev => {
+        const next = { ...prev };
+        for (const dept of group.departments) {
+          next[dept.id] = [...(prev[dept.id] || []), res];
+        }
+        return next;
+      });
+      toast.success(
+        group.departments.length > 1
+          ? `File uploaded and applied to ${group.departments.length} departments`
+          : 'File uploaded successfully',
+      );
     } catch (err: any) {
       toast.error('Failed to upload file');
     } finally {
-      setUploadingDeptId(null);
+      setUploadingGroupKey(null);
       e.target.value = '';
     }
   };
 
-  const removeDoc = (deptId: string, index: number) => {
+  const removeDoc = (group: DocGroup, index: number) => {
     setDocumentsByDept(prev => {
-      const next = [...(prev[deptId] || [])];
-      next.splice(index, 1);
-      return { ...prev, [deptId]: next };
+      const next = { ...prev };
+      for (const dept of group.departments) {
+        const docs = [...(prev[dept.id] || [])];
+        docs.splice(index, 1);
+        next[dept.id] = docs;
+      }
+      return next;
     });
   };
 
@@ -150,43 +204,50 @@ export default function NewClearanceRequestPage() {
 
               {Array.isArray(departments) && departments.length > 0 ? (
                 <div className="space-y-4">
-                  {departments.map(dept => {
-                    const docs = documentsByDept[dept.id] || [];
+                  {groups.map(group => {
+                    const docs = documentsByDept[group.departments[0].id] || [];
+                    const isShared = group.departments.length > 1;
                     return (
-                      <Card key={dept.id} className="border-dashed">
+                      <Card key={group.key} className="border-dashed">
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            {dept.name}
-                            {dept.requiresDocument && <Badge variant="secondary">Document Required</Badge>}
+                          <CardTitle className="text-sm font-medium flex flex-wrap items-center gap-2">
+                            {group.departments.map(d => d.name).join(' + ')}
+                            {group.requiresDocument && <Badge variant="secondary">Document Required</Badge>}
+                            {isShared && <Badge variant="outline">Shared document</Badge>}
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <Label className="text-xs text-muted-foreground">
-                            {dept.requiresDocument
-                              ? dept.requiredDocumentDescription || 'A supporting document is required for this department.'
+                            {group.requiresDocument
+                              ? group.description || 'A supporting document is required for these departments.'
                               : 'Supporting document (optional)'}
                           </Label>
+                          {isShared && (
+                            <p className="text-xs text-muted-foreground">
+                              Upload once — this document will be attached to all {group.departments.length} departments listed above.
+                            </p>
+                          )}
                           <div className="flex items-center gap-3">
                             <Input
                               type="file"
                               className="hidden"
-                              id={`file-upload-${dept.id}`}
-                              onChange={e => handleFileUpload(dept.id, e)}
-                              disabled={uploadingDeptId === dept.id}
+                              id={`file-upload-${group.key}`}
+                              onChange={e => handleFileUpload(group, e)}
+                              disabled={uploadingGroupKey === group.key}
                             />
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => document.getElementById(`file-upload-${dept.id}`)?.click()}
-                              disabled={uploadingDeptId === dept.id}
+                              onClick={() => document.getElementById(`file-upload-${group.key}`)?.click()}
+                              disabled={uploadingGroupKey === group.key}
                             >
                               <Upload className="h-4 w-4 mr-2" />
-                              {uploadingDeptId === dept.id ? 'Uploading...' : 'Attach File'}
+                              {uploadingGroupKey === group.key ? 'Uploading...' : 'Attach File'}
                             </Button>
                           </div>
 
-                          {dept.requiresDocument && docs.length === 0 && (
+                          {group.requiresDocument && docs.length === 0 && (
                             <p className="text-xs font-medium text-destructive">A document is required before you can submit.</p>
                           )}
 
@@ -201,7 +262,7 @@ export default function NewClearanceRequestPage() {
                                       <p className="text-xs text-muted-foreground">{formatFileSize(doc.fileSize)}</p>
                                     </div>
                                   </div>
-                                  <Button type="button" variant="ghost" size="icon" onClick={() => removeDoc(dept.id, idx)}>
+                                  <Button type="button" variant="ghost" size="icon" onClick={() => removeDoc(group, idx)}>
                                     <X className="h-4 w-4 text-destructive" />
                                   </Button>
                                 </div>
